@@ -22,7 +22,9 @@ Function duoshuo_SubMenu(id)
 		duoshuo_SubMenu=duoshuo_SubMenu & IIf(aryS(i),MakeSubMenu(aryName(i),aryPath(i),aryFloat(i)&IIf(i=id," m-now",""),aryInNewWindow(i)),"")
 	Next
 End Function
-
+'****************************************
+' 加入异步
+'****************************************
 Function duoshuo_include_async(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
 	duoshuo_Initialize()
 	If duoshuo.config.Read("duoshuo_cron_sync_enabled")="async" Then

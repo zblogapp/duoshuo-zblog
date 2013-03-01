@@ -11,21 +11,26 @@
 <!-- #include file="..\..\..\zb_system\function\c_system_plugin.asp" -->
 <!-- #include file="..\p_config.asp" -->
 <%
-Call System_Initialize()
-'检查非法链接
-Call CheckReference("")
-'检查权限
-If BlogUser.Level>1 Then Call ShowError(6)
-If CheckPluginState("duoshuo")=False Then Call ShowError(48)
-Call DuoShuo_Initialize
+
+Sub Duoshuo_NoResponse_Init()
+	Call System_Initialize()
+	'检查非法链接
+	Call CheckReference("")
+	'检查权限
+	If BlogUser.Level>1 Then Call ShowError(6)
+	If CheckPluginState("duoshuo")=False Then Call ShowError(48)
+	Call DuoShuo_Initialize
+End Sub
+
+
 
 Select Case Request.QueryString("act")
-	Case "callback":Call CallBack
-	Case "export":Call Export
-	Case "fac":Call Fac
+	Case "callback":Call Duoshuo_NoResponse_Init:Call CallBack
+	Case "export":Call Duoshuo_NoResponse_Init:Call Export
+	Case "fac":Call Duoshuo_NoResponse_Init:Call Fac
 	Case "api":Call Api
 	Case "api_async":Call api_async
-	Case "save":Call Save
+	Case "save":Call Duoshuo_NoResponse_Init:Call Save
 End Select
 
 
@@ -155,22 +160,39 @@ End Function
 %>
 <script language="javascript" runat="server">
 function Api_Async(){
-
+	Response.ContentType="application/javascript";//配置mime头
+	
+	var _last=Application(ZC_BLOG_CLSID+"duoshuo_lastpub"),_now=new Date().getTime();
+	if(typeof(_last)=="number"){//20分钟时间限制
+		if((_now-_last)/1000>=60*20){ 
+			_last=_now
+		}
+		else{
+			Response.Write("({'last':'"+_last+"','now':'"+_now+"','status':'waiting'})");
+			Response.End()
+		}
+	}
+	else{
+		_last=_now
+	}
+	Application(ZC_BLOG_CLSID+"duoshuo_lastpub")=_now
+	//x分钟内不再请求
+	
+	Duoshuo_NoResponse_Init();//加载数据库
 	var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0;
 	var _date=new Date();
 	
 	url="http://api.duoshuo.com/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
 	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
 	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
-	
+	//如果不存在logid就设为0
 	objRs=null;
-	Response.Write(url);
 	ajax.open("GET",url);
-	ajax.send();
+	ajax.send();//发送网络请求
 
-	var json=eval("("+ajax.responseText+")");
+	var json=eval("("+ajax.responseText+")");//实例化json
 	for(var i=0;i<json.response.length;i++){
-		var cmt=newClass("TComment"),tmp=json.response[i];
+		var cmt=newClass("TComment"),tmp=json.response[i]; //实例化评论对象
 		if(tmp.action=="create"){
 			_date={
 				"date":tmp.meta.created_at,
@@ -181,6 +203,7 @@ function Api_Async(){
 				"getMinutes":function(){return this.date.split("T")[1].split(":")[1]},
 				"getSeconds":function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
 			};
+			//Microsoft JScript for ASP不支持new Date("xxxTxxx")
 			cmt.Author=tmp.meta.author_name;
 			if(tmp.meta.author_key==1) cmt.AuthorID=1;
 			cmt.EMail=tmp.meta.author_email;
@@ -192,6 +215,7 @@ function Api_Async(){
 			if(tmp.meta.parent_id>0){
 				var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+tmp.meta.parent_id+"'");
 				if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
+				//判断是否有父节点
 			} 
 			if(cmt.Post()){
 				objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('"+tmp.meta.post_id+"',"+cmt.ID+")");
@@ -199,9 +223,11 @@ function Api_Async(){
 			}
 			
 		}
+		cmt=null; 
 		
 	}
-	duoshuo.config.Save()
+	duoshuo.config.Save();
+	Response.Write("({'status':'success'})")
 		
 }
 </script>
