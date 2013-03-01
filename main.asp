@@ -25,7 +25,7 @@ Call DuoShuo_Initialize
 tr {
 	height: 32px
 }
-ul li {
+#divMain2 ul li {
 	margin-top: 6px;
 	margin-bottom: 6px
 }

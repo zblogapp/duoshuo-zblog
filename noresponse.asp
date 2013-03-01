@@ -24,6 +24,7 @@ Select Case Request.QueryString("act")
 	Case "export":Call Export
 	Case "fac":Call Fac
 	Case "api":Call Api
+	Case "api_async":Call api_async
 	Case "save":Call Save
 End Select
 
@@ -130,6 +131,8 @@ Sub Api()
 
 End Sub
 
+
+
 Sub Save()
 	Dim obj
 	For Each obj In Request.Form
@@ -140,4 +143,65 @@ Sub Save()
 	Response.Redirect "main.asp?act=setting"
 End Sub
 
+
+Function comparison(ByVal str1,ByVal str2)
+	str1=CDBl(str1):str2=CDBl(str2)
+	If str1>str2 Then 
+		comparison=CStr(str1)
+	Else
+		comparison=CStr(str2)
+	End If
+End Function
 %>
+<script language="javascript" runat="server">
+function Api_Async(){
+
+	var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0;
+	var _date=new Date();
+	
+	url="http://api.duoshuo.com/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
+	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
+	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
+	
+	objRs=null;
+	Response.Write(url);
+	ajax.open("GET",url);
+	ajax.send();
+
+	var json=eval("("+ajax.responseText+")");
+	for(var i=0;i<json.response.length;i++){
+		var cmt=newClass("TComment"),tmp=json.response[i];
+		if(tmp.action=="create"){
+			_date={
+				"date":tmp.meta.created_at,
+				"getMonth":function(){return this.date.split("T")[0].split("-")[1]},
+				"getDay":function(){return this.date.split("T")[0].split("-")[2]},
+				"getFullYear":function(){return this.date.split("T")[0].split("-")[0]},
+				"getHours":function(){return this.date.split("T")[1].split(":")[0]},
+				"getMinutes":function(){return this.date.split("T")[1].split(":")[1]},
+				"getSeconds":function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
+			};
+			cmt.Author=tmp.meta.author_name;
+			if(tmp.meta.author_key==1) cmt.AuthorID=1;
+			cmt.EMail=tmp.meta.author_email;
+			cmt.HomePage=tmp.meta.author_url;
+			cmt.IP=tmp.meta.ip;
+			cmt.PostTime=_date.getFullYear()+"-"+(_date.getMonth())+"-"+_date.getDay()+" "+_date.getHours()+":"+_date.getMinutes()+":"+_date.getSeconds();
+			cmt.Content=tmp.meta.message;
+			cmt.log_id=tmp.meta.thread_key;
+			if(tmp.meta.parent_id>0){
+				var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+tmp.meta.parent_id+"'");
+				if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
+			} 
+			if(cmt.Post()){
+				objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('"+tmp.meta.post_id+"',"+cmt.ID+")");
+				duoshuo.config.Write("log_id",tmp.log_id)
+			}
+			
+		}
+		
+	}
+	duoshuo.config.Save()
+		
+}
+</script>

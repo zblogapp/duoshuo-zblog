@@ -22,6 +22,20 @@ Function duoshuo_SubMenu(id)
 		duoshuo_SubMenu=duoshuo_SubMenu & IIf(aryS(i),MakeSubMenu(aryName(i),aryPath(i),aryFloat(i)&IIf(i=id," m-now",""),aryInNewWindow(i)),"")
 	Next
 End Function
+
+Function duoshuo_include_async(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
+	duoshuo_Initialize()
+	If duoshuo.config.Read("duoshuo_cron_sync_enabled")="async" Then
+		Dim i,j
+		j=UBound(aryTemplateTagsName)
+		For i=1 to j
+			If aryTemplateTagsName(i)="ZC_BLOG_COPYRIGHT" Then
+				Randomize
+				aryTemplateTagsValue(i)="<script language=""javascript"" type=""text/javascript"" src="""&ZC_BLOG_HOST&"zb_users/plugin/duoshuo/noresponse.asp?act=api_async"&Rnd&"""></script>" & aryTemplateTagsValue(i)
+			End If
+		Next
+	End If
+End Function
 %>
 
 <script language="javascript" runat="server">
@@ -30,9 +44,9 @@ duoshuo.get=function(s){return Request.QueryString(s).Item}
 duoshuo.post=function(s){return Request.Form(s).Item}
 duoshuo.config=function(){}
 duoshuo.include={
-	"redirect":function(){
+	redirect:function(){
 		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp?submenu=false")
-	}
+	}	
 }
 duoshuo.show=function(){
 	var k="";
@@ -51,4 +65,5 @@ duoshuo.show=function(){
 	k+='</'+'script><!-'+'- Duoshuo Comment END -->';
 	return k;
 }
+
 </script>
