@@ -21,6 +21,18 @@ BlogTitle="多说社会化评论"
 Call DuoShuo_Initialize
 %>
 <!--#include file="..\..\..\zb_system\admin\admin_header.asp"-->
+<style type="text/css">
+tr {
+	height: 32px
+}
+ul li {
+	margin-top: 6px;
+	margin-bottom: 6px
+}
+.bold {
+	font-weight: bold;
+}
+</style>
 <!--#include file="..\..\..\zb_system\admin\admin_top.asp"-->
         <div id="divMain">
           <div id="ShowBlogHint">
@@ -33,20 +45,90 @@ Call DuoShuo_Initialize
             <%
 			If duoshuo.config.Read("short_name")="" Then
 			%>
-            <iframe id="duoshuo-remote-window" src="http://duoshuo.com/connect-site/?name=<%=Server.URLEncode(ZC_BLOG_TITLE)%>&description=<%=Server.URLEncode(ZC_BLOG_SUBTITLE)%>&url=<%=Server.URLEncode(ZC_BLOG_HOST)%>&siteurl=<%=Server.URLEncode(ZC_BLOG_HOST)%>&system_version=<%=BlogVersion%>&plugin_version=<%=Server.URLEncode(duoshuo.config.Read("ver"))%>&system=zblog&callback=<%=Server.URLEncode(BlogHost &"zb_users/plugin/duoshuo/noresponse.asp?act=callback")%>&user_key=<%=BlogUser.ID%>&user_name=<%=Server.URLEncode(BlogUser.Name)%>&admin_email=<%=Server.URLEncode(BlogUser.EMail)%>" style="border:0; width:100%; height:580px;"></iframe>
+            <iframe id="duoshuo-remote-window" src="http://duoshuo.com/connect-site/?name=<%=Server.URLEncode(ZC_BLOG_TITLE)%>&description=<%=Server.URLEncode(ZC_BLOG_SUBTITLE)%>&url=<%=Server.URLEncode(ZC_BLOG_HOST)%>&siteurl=<%=Server.URLEncode(ZC_BLOG_HOST)%>&system_version=<%=BlogVersion%>&plugin_version=<%=Server.URLEncode(duoshuo.config.Read("ver"))%>&system=zblog&callback=<%=Server.URLEncode(BlogHost &"zb_users/plugin/duoshuo/noresponse.asp?act=callback")%>&user_key=<%=BlogUser.ID%>&user_name=<%=Server.URLEncode(BlogUser.Name)%>&admin_email=<%=Server.URLEncode(BlogUser.EMail)%>&local_api_url=<%=Server.URLEncode(BlogHost & "zb_users/plugin/duoshuo/noresponse.asp?act=api")%>" style="border:0; width:100%; height:580px;"></iframe>
             <%
 			Else
 			Select Case duoshuo.get("act")
 			Case "setting"
 			%>
-            <input name="" type="button" class="button" onClick="if(confirm('你确定要继续吗？')){location.href='noresponse.asp?act=fac'}" value="多说配置初始化" />
-
-            <input name="" type="button" class="button" onClick="if(confirm('这是一个很占资源的过程，你确定要继续吗？')){location.href='noresponse.asp?act=export'}" value="导出评论至多说" />
+            <form action="noresponse.asp?act=save" method="post">
+              <table width="100%">
+                <thead>
+                  <tr>
+                    <th width="30%">配置项 </th>
+                    <th>选择 </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><p><span class="bold"> · 多说API服务器</span><br/>
+                        选择一个速度更快的服务器</p></td>
+                    <td><ul>
+                        <li>
+                          <label>
+                            <input type="radio" name="duoshuo_api_hostname" value="api.duoshuo.com"<%=GetChecked("duoshuo_api_hostname","api.duoshuo.com")%>>
+                            api.duoshuo.com(国内主机使用)</label>
+                        </li>
+                        <li>
+                          <label>
+                            <input type="radio" name="duoshuo_api_hostname" value="api.duoshuo.org"<%=GetChecked("duoshuo_api_hostname","api.duoshuo.org")%>>
+                            api.duoshuo.org(国外主机使用)</label>
+                        </li>
+                        <li>
+                          <label>
+                            <input type="radio" name="duoshuo_api_hostname" value="118.144.80.201"<%=GetChecked("duoshuo_api_hostname","118.144.80.201")%>>
+                            118.144.80.201(DNS故障主机使用)</label>
+                        </li>
+                      </ul></td>
+                  </tr>
+                  <tr>
+                    <td><p><span class="bold"> · 本地数据备份</span><br/>
+                        评论同时写入本地数据库</p></td>
+                    <td><ul>
+                        <li>
+                          <label>
+                            <input type="radio" name="duoshuo_cron_sync_enabled" value="async"<%=GetChecked("duoshuo_cron_sync_enabled","async")%>>
+                            定时写入</label>
+                        </li>
+                        <li>
+                          <label>
+                            <input type="radio" name="duoshuo_cron_sync_enabled" value="sync"<%=GetChecked("duoshuo_cron_sync_enabled","sync")%>>
+                            实时写入</label>
+                        </li>
+                        <li>
+                          <label>
+                            <input type="radio" name="duoshuo_cron_sync_enabled" value="off"<%=GetChecked("duoshuo_cron_sync_enabled","off")%>>
+                            不写入</label>
+                        </li>
+                      </ul>
+                  </tr>
+                  <tr>
+                    <td><p><span class="bold"> · 评论数修正</span><br/>
+                        AJAX加载文章的评论数</p></td>
+                    <td><input type="text" class="checkbox" name="duoshuo_cc_fix" value="<%=duoshuo.config.Read("duoshuo_cc_fix")%>" checked="checked"></td>
+                  </tr>
+                  <tr>
+                    <td><p><span class="bold"> · 其它</span></p></td>
+                    <td><p>
+                        <input name="" type="button" class="button" onClick="if(confirm('这是一个很占资源的过程，你确定要继续吗？')){window.open('noresponse.asp?act=export')}" value="导出评论为多说可识别的格式" />
+                      </p>
+                      <p>
+                        <input name="" type="button" class="button" onClick="if(confirm('你确定要继续吗？')){location.href='noresponse.asp?act=fac'}" value="插件配置初始化" />
+                      </p></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                </tfoot>
+              </table>
+              <p>
+              <input type="submit" class="button" value="提交" />
+              </p>
+            </form>
             <%
 			Case Else
 			%>
-			<iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin" style="width:100%; border:0;"></iframe>
-			<%
+            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin" style="width:100%; border:0;"></iframe>
+            <%
 			End Select
 			End If
 			%>
@@ -65,5 +147,10 @@ $(document).ready(function(){
 });
 $('#duoshuo_manage').addClass('sidebarsubmenu1');
 </script>
-
 <%Call System_Terminate()%>
+
+<%
+Function GetChecked(name,value)
+	If duoshuo.config.Read(name)=value Then GetChecked=" checked=""checked"" "
+End Function
+%>

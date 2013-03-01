@@ -23,6 +23,8 @@ Select Case Request.QueryString("act")
 	Case "callback":Call CallBack
 	Case "export":Call Export
 	Case "fac":Call Fac
+	Case "api":Call Api
+	Case "save":Call Save
 End Select
 
 
@@ -120,5 +122,22 @@ Function jsArray
 	Set jsArray = new duoshuo_aspjson
 	jsArray.Kind = 1
 End Function
+
+
+
+
+Sub Api()
+
+End Sub
+
+Sub Save()
+	Dim obj
+	For Each obj In Request.Form
+		duoshuo.config.Write obj,Request.Form(obj)
+	Next
+	duoshuo.config.Save()
+	Call SetBlogHint(True,Empty,Empty)
+	Response.Redirect "main.asp?act=setting"
+End Sub
 
 %>
