@@ -28,19 +28,12 @@ End Function
 '****************************************
 ' 加入异步
 '****************************************
-Sub duoshuo_include_async(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
-	duoshuo_Initialize()
+Sub duoshuo_include_async()
 	If duoshuo.config.Read("duoshuo_cron_sync_enabled")="async" Then
-		Dim i,j
-		j=UBound(aryTemplateTagsName)
-		For i=1 to j
-			If aryTemplateTagsName(i)="ZC_BLOG_COPYRIGHT" Then
-				Randomize
-				aryTemplateTagsValue(i)="<script language=""javascript"" type=""text/javascript"" src="""&ZC_BLOG_HOST&"zb_users/plugin/duoshuo/noresponse.asp?act=api_async&"&Rnd&"""></script>" & aryTemplateTagsValue(i)
-			End If
-		Next
+		duoshuo.include.footdata=duoshuo.include.footdata&"<script language=""javascript"" type=""text/javascript"" src="""&BlogHost&"zb_users/plugin/duoshuo/noresponse.asp?act=api_async&"&Rnd&"""></script>"
 	End If
 End Sub
+
 
 '****************************************
 ' 修正评论数
@@ -51,22 +44,21 @@ Function duoshuo_include_cc_fix(ByRef aryTemplateTagsName, ByRef aryTemplateTags
 		aryTemplateTagsValue(7)="<span id='duoshuo_comment"&aryTemplateTagsValue(1)&"'></span>"
 		If duoshuo.threadkey="" Then
 			duoshuo.threadkey=aryTemplateTagsValue(1) 
-			Call Add_Filter_Plugin("Filter_Plugin_TArticle_Build_TemplateTags","duoshuo_include_cc_fix_tag") '插入页面底部的版权信息，进行批量获取
-			Call Add_Filter_Plugin("Filter_Plugin_TArticleList_Build_TemplateTags","duoshuo_include_cc_fix_tag")
+			duoshuo.include.footdata=duoshuo.include.footdata&"<script type='text/javascript' src='http://api.duoshuo.com/threads/counts.jsonp?short_name="& Server.URLEncode(duoshuo.config.Read("short_name")) &"&threads="&Server.URLEncode(duoshuo.threadkey)&"&callback=duoshuo_callback'></script>"  '插入页面底部的版权信息，进行批量获
 		Else
 			duoshuo.threadkey=duoshuo.threadkey&","&aryTemplateTagsValue(1)
 		End If
 	End If
 End Function
-
-Function duoshuo_include_cc_fix_tag(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
-	Dim i,j
-	j=UBound(aryTemplateTagsName)
-	For i=1 to j
-		If aryTemplateTagsName(i)="ZC_BLOG_COPYRIGHT" Then
-			aryTemplateTagsValue(i)="<script type='text/javascript' src='http://api.duoshuo.com/threads/counts.jsonp?short_name="& Server.URLEncode(duoshuo.config.Read("short_name")) &"&threads="&Server.URLEncode(duoshuo.threadkey)&"&callback=duoshuo_callback'></script>" & aryTemplateTagsValue(i)
-		End If
-	Next
+'****************************************
+' 写入footer
+'****************************************
+Function duoshuo_include_footer(ByRef html)
+	Stop
+	duoshuo_Initialize()
+	Call duoshuo_include_async()
+	duoshuo.include.footdata=duoshuo.include.footdata&"<script type='text/javascript'>function duoshuo_callback(data){if(data.response){for(var i in data.response){$('#duoshuo_comment'+i).html(data.response[i].comments);}}};var duoshuoQuery = {short_name:"""&duoshuo.config.Read("short_name")&"""};</script><script type=""text/javascript"" src=""http://static.duoshuo.com/embed.js""></script>"
+	html=Replace(html,"<#ZC_BLOG_COPYRIGHT#>",duoshuo.include.footdata&"<#ZC_BLOG_COPYRIGHT#>")
 End Function
 %>
 
@@ -86,17 +78,9 @@ duoshuo.show=function(){
 	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->';
 	k+='<div class="ds-thread" data-category="<#article/category/id#>" data-thread-key="<#article/id#>" ';
 	k+='data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url=""></div>';
-	k+='<scri'+'pt type="text/javascript">';
-	k+='var duoshuoQuery = {"short_name":"'+duoshuo.config.Read("short_name")+'"};';
-	k+='(function() {';
-	k+='	var ds = document.createElement("script");';
-	k+="	ds.type = 'text/javascript';ds.async = true;";
-	k+="	ds.src = 'http://static.duoshuo.com/embed.js';";
-	k+="	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);";
-	k+='})();';
-	k+='</'+'script><!-'+'- Duoshuo Comment END -->';
+	k+='<!-'+'- Duoshuo Comment END -->';
 	return k;
 }
 duoshuo.threadkey=""
-
+duoshuo.include.footdata="";
 </script>
