@@ -125,6 +125,11 @@ tr {
                     <td><input type="text" name="duoshuo_comments_wrapper_outro" value="<%=duoshuo.config.Read("duoshuo_comments_wrapper_outro")%>" style="width:50%"/></td>
                   </tr>
                   <tr>
+                    <td><p><span class="bold"> · SEO优化</span><br/>
+                        <span class="note">搜索引擎爬虫访问网页时，显示静态HTML评论(不支持静态模式)</span></p></td>
+                    <td><input type="text" class="checkbox" name="duoshuo_seo_enabled" value="<%=duoshuo.config.Read("duoshuo_seo_enabled")%>"/></td>
+                  </tr>
+                  <tr>
                     <td><p><span class="bold"> · 其它</span></p></td>
                     <td><p> </p>
                       <p>

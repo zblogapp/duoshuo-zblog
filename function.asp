@@ -1,5 +1,8 @@
 ﻿<%
+Dim bduoshuo_Initialize
+bduoshuo_Initialize=False
 Sub duoshuo_Initialize()
+	If bduoshuo_Initialize Then Exit Sub
 	Set duoshuo.config=New TConfig
 	duoshuo.config.Load "DuoShuo"
 	If duoshuo.config.Read("ver")="" Then
@@ -9,8 +12,10 @@ Sub duoshuo_Initialize()
 		duoshuo.config.Write "duoshuo_cc_fix","False"
 		duoshuo.config.Write "duoshuo_comments_wrapper_intro",""
 		duoshuo.config.Write "duoshuo_comments_wrapper_outro",""
+		duoshuo.config.Write "duoshuo_seo_enabled","False"
 		duoshuo.config.Save
 	End If
+	bduoshuo_Initialize=True
 End Sub
 '****************************************
 ' duoshuo 子菜单
@@ -88,4 +93,16 @@ duoshuo.show=function(){
 }
 duoshuo.threadkey=""
 duoshuo.include.footdata="";
+duoshuo.checkspider=function(){
+	duoshuo_Initialize();
+	if(duoshuo.config.Read("duoshuo_seo_enabled")!="True"){return false}
+	if(ZC_POST_STATIC_MODE=="STATIC"){return false}
+	var spider=/(baidu|google|bing|soso|360|Yahoo|msn|Yandex|youdao|mj12|Jike|Ahrefs|ezooms|Easou|sogou)(bot|spider|Transcoder|slurp)/i
+	if(spider.test(Request.ServerVariables("HTTP_USER_AGENT").Item)){
+		return true
+	}
+	else{
+		return false
+	}
+}
 </script>
