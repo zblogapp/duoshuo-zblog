@@ -42,7 +42,7 @@ tr {
             <%Call GetBlogHint()%>
           </div>
           <div class="divHeader"><%=BlogTitle%></div>
-          <div class="SubMenu"><%=duoshuo_SubMenu(2)%></div>
+          <div class="SubMenu"><%=duoshuo_SubMenu("export")%></div>
           <div id="divMain2"> 
             <script type="text/javascript">ActiveTopMenu("aPlugInMng");</script>
             <form action="noresponse.asp?act=export" method="post">

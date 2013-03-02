@@ -14,12 +14,14 @@ End Sub
 ' duoshuo 子菜单
 '****************************************
 Function duoshuo_SubMenu(id)
-	If id="setting" Then id=1
+	If id="setting" Then id=2
+	If id="personal" Then id=1
+	If id="export" Then id=3
 	Dim aryName,aryPath,aryFloat,aryInNewWindow,i
-	aryName=Array("首页","设置","导出","更多")
-	aryPath=Array("main.asp","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
-	aryFloat=Array("m-left","m-left","m-left","m-right")
-	aryInNewWindow=Array(False,False,False,True)
+	aryName=Array("评论管理","多说设置","高级选项","数据导出","多说后台")
+	aryPath=Array("main.asp","main.asp?act=personal","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
+	aryFloat=Array("m-left","m-left","m-left","m-left","m-right")
+	aryInNewWindow=Array(False,False,False,False,True)
 	For i=0 To Ubound(aryName)
 		duoshuo_SubMenu=duoshuo_SubMenu & MakeSubMenu(aryName(i),aryPath(i),aryFloat(i)&IIf(i=id," m-now",""),aryInNewWindow(i))
 	Next
