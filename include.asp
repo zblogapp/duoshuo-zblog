@@ -29,6 +29,7 @@ Function InstallPlugin_duoshuo()
 			objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_cmtid int default 0)")
 		End If
 	End If
+	Call SetBlogHint(Empty,Empty,True)
 	
 End Function
 
