@@ -11,7 +11,7 @@ Function ActivePlugin_duoshuo()
 	'重定向评论管理
 	Call Add_Action_Plugin("Action_Plugin_Admin_Begin","duoshuo.include.redirect()") 
 	'重写评论框
-	Call Add_Action_Plugin("Action_Plugin_TArticle_Export_Begin","If Level=4 Then Disable_Export_CMTandTB=True:Disable_Export_CommentPost=True:Template_Article_CommentPost=duoshuo.show():HasCMTandTB=True")
+	Call Add_Action_Plugin("Action_Plugin_TArticle_Export_CommentPost_Begin","If Level=4 Then Disable_Export_CMTandTB=True:HasCMTandTB=True:Disable_Export_CommentPost=True:Template_Article_CommentPost=duoshuo.show():Exit Function")
 	'异步数据获取
 	Call Add_Filter_Plugin("Filter_Plugin_TArticleList_Build_Template","duoshuo_include_footer")
 	Call Add_Filter_Plugin("Filter_Plugin_TArticle_Build_Template","duoshuo_include_footer")
