@@ -55,7 +55,6 @@ tr {
 			Case "personal"
 			%>
             <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/settings/" style="border:0; width:100%; height:580px;"></iframe>
-
             <%
 			Case "setting"
 			%>
@@ -114,6 +113,16 @@ tr {
                     <td><p><span class="bold"> · 评论数修正</span><br/>
                         <span class="note">AJAX加载文章的评论数</span></p></td>
                     <td><input type="text" class="checkbox" name="duoshuo_cc_fix" value="<%=duoshuo.config.Read("duoshuo_cc_fix")%>" checked="checked"></td>
+                  </tr>
+                  <tr>
+                    <td><p><span class="bold"> · 评论框前缀</span><br/>
+                        <span class="note">仅在主题和评论框的div嵌套不正确的情况下使用 </span></p></td>
+                    <td><input type="text" name="duoshuo_comments_wrapper_intro" value="<%=duoshuo.config.Read("duoshuo_comments_wrapper_intro")%>" style="width:50%"/></td>
+                  </tr>
+                  <tr>
+                    <td><p><span class="bold"> · 评论框后缀</span><br/>
+                        <span class="note">仅在主题和评论框的div嵌套不正确的情况下使用 </span></p></td>
+                    <td><input type="text" name="duoshuo_comments_wrapper_outro" value="<%=duoshuo.config.Read("duoshuo_comments_wrapper_outro")%>" style="width:50%"/></td>
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · 其它</span></p></td>

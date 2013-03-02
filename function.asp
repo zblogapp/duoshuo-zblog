@@ -7,6 +7,8 @@ Sub duoshuo_Initialize()
 		duoshuo.config.Write "duoshuo_api_hostname","api.duoshuo.com"
 		duoshuo.config.Write "duoshuo_cron_sync_enabled","async"
 		duoshuo.config.Write "duoshuo_cc_fix","False"
+		duoshuo.config.Write "duoshuo_comments_wrapper_intro",""
+		duoshuo.config.Write "duoshuo_comments_wrapper_outro",""
 		duoshuo.config.Save
 	End If
 End Sub
@@ -77,8 +79,10 @@ duoshuo.show=function(){
 	var k="";
 	duoshuo_Initialize();
 	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->';
+	k+=duoshuo.config.Read("duoshuo_comments_wrapper_intro");
 	k+='<div class="ds-thread" data-category="<#article/category/id#>" data-thread-key="<#article/id#>" ';
 	k+='data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url=""></div>';
+	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
 	k+='<!-'+'- Duoshuo Comment END -->';
 	return k;
 }

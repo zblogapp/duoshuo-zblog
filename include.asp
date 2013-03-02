@@ -8,6 +8,7 @@ Call RegisterPlugin("duoshuo","ActivePlugin_duoshuo")
 ';
 
 Function ActivePlugin_duoshuo()
+
 	'重定向评论管理
 	Call Add_Action_Plugin("Action_Plugin_Admin_Begin","duoshuo.include.redirect()") 
 	'重写评论框
