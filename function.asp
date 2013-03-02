@@ -15,14 +15,13 @@ End Sub
 '****************************************
 Function duoshuo_SubMenu(id)
 	If id="setting" Then id=1
-	Dim aryName,aryPath,aryFloat,aryInNewWindow,aryS,i
+	Dim aryName,aryPath,aryFloat,aryInNewWindow,i
 	aryName=Array("首页","设置","导出","更多")
 	aryPath=Array("main.asp","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
 	aryFloat=Array("m-left","m-left","m-left","m-right")
-	aryS=Array(Not(duoshuo.config.Read("short_name")="" Or duoshuo.get("submenu")="false"),True,True,True)
 	aryInNewWindow=Array(False,False,False,True)
 	For i=0 To Ubound(aryName)
-		duoshuo_SubMenu=duoshuo_SubMenu & IIf(aryS(i),MakeSubMenu(aryName(i),aryPath(i),aryFloat(i)&IIf(i=id," m-now",""),aryInNewWindow(i)),"")
+		duoshuo_SubMenu=duoshuo_SubMenu & MakeSubMenu(aryName(i),aryPath(i),aryFloat(i)&IIf(i=id," m-now",""),aryInNewWindow(i))
 	Next
 End Function
 '****************************************
@@ -69,7 +68,7 @@ duoshuo.post=function(s){return Request.Form(s).Item}
 duoshuo.config=function(){}
 duoshuo.include={
 	redirect:function(){
-		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp?submenu=false")
+		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp")
 	}	
 }
 duoshuo.show=function(){
