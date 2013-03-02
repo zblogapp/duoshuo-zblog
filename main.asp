@@ -32,6 +32,9 @@ tr {
 .bold {
 	font-weight: bold;
 }
+.note {
+	margin-left: 10px
+}
 </style>
 <!--#include file="..\..\..\zb_system\admin\admin_top.asp"-->
         <div id="divMain">
@@ -62,7 +65,7 @@ tr {
                 <tbody>
                   <tr>
                     <td><p><span class="bold"> · 多说API服务器</span><br/>
-                        选择一个速度更快的服务器</p></td>
+                        <span class="note">选择一个速度更快的服务器</span></p></td>
                     <td><ul>
                         <li>
                           <label>
@@ -83,18 +86,18 @@ tr {
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · 本地数据备份</span><br/>
-                        评论同时写入本地数据库</p></td>
+                        <span class="note">评论同时写入本地数据库</span></p></td>
                     <td><ul>
                         <li>
                           <label>
                             <input type="radio" name="duoshuo_cron_sync_enabled" value="async"<%=GetChecked("duoshuo_cron_sync_enabled","async")%>>
                             定时写入</label>
                         </li>
-                        <li>
+                        <!--<li>
                           <label>
                             <input type="radio" name="duoshuo_cron_sync_enabled" value="sync"<%=GetChecked("duoshuo_cron_sync_enabled","sync")%>>
                             实时写入</label>
-                        </li>
+                        </li>-->
                         <li>
                           <label>
                             <input type="radio" name="duoshuo_cron_sync_enabled" value="off"<%=GetChecked("duoshuo_cron_sync_enabled","off")%>>
@@ -104,14 +107,12 @@ tr {
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · 评论数修正</span><br/>
-                        AJAX加载文章的评论数</p></td>
+                        <span class="note">AJAX加载文章的评论数</span></p></td>
                     <td><input type="text" class="checkbox" name="duoshuo_cc_fix" value="<%=duoshuo.config.Read("duoshuo_cc_fix")%>" checked="checked"></td>
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · 其它</span></p></td>
-                    <td><p>
-                        <input name="" type="button" class="button" onClick="if(confirm('这是一个很占资源的过程，你确定要继续吗？')){window.open('noresponse.asp?act=export')}" value="导出评论为多说可识别的格式" />
-                      </p>
+                    <td><p> </p>
                       <p>
                         <input name="" type="button" class="button" onClick="if(confirm('你确定要继续吗？')){location.href='noresponse.asp?act=fac'}" value="插件配置初始化" />
                       </p></td>
@@ -121,7 +122,7 @@ tr {
                 </tfoot>
               </table>
               <p>
-              <input type="submit" class="button" value="提交" />
+                <input type="submit" class="button" value="提交" />
               </p>
             </form>
             <%
@@ -148,7 +149,6 @@ $(document).ready(function(){
 $('#duoshuo_manage').addClass('sidebarsubmenu1');
 </script>
 <%Call System_Terminate()%>
-
 <%
 Function GetChecked(name,value)
 	If duoshuo.config.Read(name)=value Then GetChecked=" checked=""checked"" "
