@@ -55,7 +55,7 @@ End Function
 ' 写入footer
 '****************************************
 Function duoshuo_include_footer(ByRef html)
-	Stop
+	duoshuo.include.footdata=""
 	duoshuo_Initialize()
 	Call duoshuo_include_async()
 	duoshuo.include.footdata="<script type='text/javascript'>function duoshuo_callback(data){if(data.response){for(var i in data.response){$('#duoshuo_comment'+i).html(data.response[i].comments);}}};var duoshuoQuery = {short_name:"""&duoshuo.config.Read("short_name")&"""};</script><script type=""text/javascript"" src=""http://static.duoshuo.com/embed.js""></script>"&duoshuo.include.footdata
