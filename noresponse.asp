@@ -133,7 +133,7 @@ End Function
 
 
 Sub Api()
-
+	
 End Sub
 
 
@@ -159,6 +159,7 @@ Function comparison(ByVal str1,ByVal str2)
 End Function
 %>
 <script language="javascript" runat="server">
+
 function Api_Async(){
 	Response.ContentType="application/javascript";//配置mime头
 	
@@ -177,58 +178,66 @@ function Api_Async(){
 	}
 	Application(ZC_BLOG_CLSID+"duoshuo_lastpub")=_now
 	//x分钟内不再请求
+	Response.Write("({'status':'"+Api_Run().success.replace(/\r/g,"\\r").replace(/\n/g,"\\n").replace(/'/g,"\'")+"'})")
 	
+}
+function Api_Run(){
 	Duoshuo_NoResponse_Init();//加载数据库
-	var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0;
-	var _date=new Date();
+	if(duoshuo.config.Read("duoshuo_cron_sync_enabled")!="async") return {'success':'noasync'}
+	try{
+		var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0;
+		var _date=new Date();
+		
+		url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
+		url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
+		if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
+		//如果不存在logid就设为0
+		objRs=null;
+
+		ajax.open("GET",url);
+		ajax.send();//发送网络请求
 	
-	url=duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
-	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
-	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
-	//如果不存在logid就设为0
-	objRs=null;
-
-	ajax.open("GET",url);
-	ajax.send();//发送网络请求
-
-	var json=eval("("+ajax.responseText+")");//实例化json
-	for(var i=0;i<json.response.length;i++){
-		var cmt=newClass("TComment"),tmp=json.response[i]; //实例化评论对象
-		if(tmp.action=="create"){
-			_date={
-				"date":tmp.meta.created_at,
-				"getMonth":function(){return this.date.split("T")[0].split("-")[1]},
-				"getDay":function(){return this.date.split("T")[0].split("-")[2]},
-				"getFullYear":function(){return this.date.split("T")[0].split("-")[0]},
-				"getHours":function(){return this.date.split("T")[1].split(":")[0]},
-				"getMinutes":function(){return this.date.split("T")[1].split(":")[1]},
-				"getSeconds":function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
-			};
-			//Microsoft JScript for ASP不支持new Date("xxxTxxx")
-			cmt.Author=tmp.meta.author_name;
-			if(tmp.meta.author_key==1) cmt.AuthorID=1;
-			cmt.EMail=tmp.meta.author_email;
-			cmt.HomePage=tmp.meta.author_url;
-			cmt.IP=tmp.meta.ip;
-			cmt.PostTime=_date.getFullYear()+"-"+(_date.getMonth())+"-"+_date.getDay()+" "+_date.getHours()+":"+_date.getMinutes()+":"+_date.getSeconds();
-			cmt.Content=tmp.meta.message;
-			cmt.log_id=tmp.meta.thread_key;
-			if(tmp.meta.parent_id>0){
-				var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+tmp.meta.parent_id+"'");
-				if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
-				//判断是否有父节点
-			} 
-			if(cmt.Post()){
-				objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('"+tmp.meta.post_id+"',"+cmt.ID+")");
-				duoshuo.config.Write("log_id",tmp.log_id)
+		var json=eval("("+ajax.responseText+")");//实例化json
+		for(var i=0;i<json.response.length;i++){
+			var cmt=newClass("TComment"),tmp=json.response[i]; //实例化评论对象
+			if(tmp.action=="create"){
+				_date={
+					"date":tmp.meta.created_at,
+					"getMonth":function(){return this.date.split("T")[0].split("-")[1]},
+					"getDay":function(){return this.date.split("T")[0].split("-")[2]},
+					"getFullYear":function(){return this.date.split("T")[0].split("-")[0]},
+					"getHours":function(){return this.date.split("T")[1].split(":")[0]},
+					"getMinutes":function(){return this.date.split("T")[1].split(":")[1]},
+					"getSeconds":function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
+				};
+				//Microsoft JScript for ASP不支持new Date("xxxTxxx")
+				cmt.Author=tmp.meta.author_name;
+				if(tmp.meta.author_key==1) cmt.AuthorID=1;
+				cmt.EMail=tmp.meta.author_email;
+				cmt.HomePage=tmp.meta.author_url;
+				cmt.IP=tmp.meta.ip;
+				cmt.PostTime=_date.getFullYear()+"-"+(_date.getMonth())+"-"+_date.getDay()+" "+_date.getHours()+":"+_date.getMinutes()+":"+_date.getSeconds();
+				cmt.Content=tmp.meta.message;
+				cmt.log_id=tmp.meta.thread_key;
+				if(tmp.meta.parent_id>0){
+					var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+tmp.meta.parent_id+"'");
+					if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
+					//判断是否有父节点
+				} 
+				if(cmt.Post()){
+					objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('"+tmp.meta.post_id+"',"+cmt.ID+")");
+					duoshuo.config.Write("log_id",tmp.log_id)
+				}
+				
 			}
+			cmt=null; 
 			
 		}
-		cmt=null; 
-		
+		duoshuo.config.Save();
+		return {'success':'success'}
 	}
-	duoshuo.config.Save();
-	Response.Write("({'status':'success'})")
-		
+	catch(e){
+		return {'success':e.message}
+	}
 }
 </script>
