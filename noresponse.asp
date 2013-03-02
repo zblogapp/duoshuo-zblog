@@ -182,11 +182,12 @@ function Api_Async(){
 	var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0;
 	var _date=new Date();
 	
-	url="http://api.duoshuo.com/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
+	url=duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
 	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
 	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
 	//如果不存在logid就设为0
 	objRs=null;
+
 	ajax.open("GET",url);
 	ajax.send();//发送网络请求
 

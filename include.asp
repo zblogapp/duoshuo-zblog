@@ -3,6 +3,7 @@
 <%
 '注册插件
 Call RegisterPlugin("duoshuo","ActivePlugin_duoshuo")
+Call Add_Response_Plugin("Response_Plugin_Html_Js_Add",";function duoshuo_callback(data){if(data.response){for(var i in data.response){$('#duoshuo_comment'+i).html(data.response[i].comments);}}}") '评论数的回调
 '挂口部分
 Function ActivePlugin_duoshuo()
 
@@ -10,6 +11,7 @@ Function ActivePlugin_duoshuo()
 	Call Add_Action_Plugin("Action_Plugin_TArticle_Export_Begin","If Level=4 Then Disable_Export_CMTandTB=True:Disable_Export_CommentPost=True:Template_Article_CommentPost=duoshuo.show():HasCMTandTB=True")
 	Call Add_Filter_Plugin("Filter_Plugin_TArticleList_Build_TemplateTags","duoshuo_include_async")
 	Call Add_Filter_Plugin("Filter_Plugin_TArticle_Build_TemplateTags","duoshuo_include_async")
+	Call Add_Filter_Plugin("Filter_Plugin_TArticle_Export_TemplateTags","duoshuo_include_cc_fix")
 
 End Function
 

@@ -4,6 +4,9 @@ Sub duoshuo_Initialize()
 	duoshuo.config.Load "DuoShuo"
 	If duoshuo.config.Read("ver")="" Then
 		duoshuo.config.Write "ver","1.0"
+		duoshuo.config.Write "duoshuo_api_hostname","api.duoshuo.com"
+		duoshuo.config.Write "duoshuo_cron_sync_enabled","async"
+		duoshuo.config.Write "duoshuo_cc_fix","False"
 		duoshuo.config.Save
 	End If
 End Sub
@@ -25,7 +28,7 @@ End Function
 '****************************************
 ' 加入异步
 '****************************************
-Function duoshuo_include_async(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
+Sub duoshuo_include_async(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
 	duoshuo_Initialize()
 	If duoshuo.config.Read("duoshuo_cron_sync_enabled")="async" Then
 		Dim i,j
@@ -33,10 +36,37 @@ Function duoshuo_include_async(ByRef aryTemplateTagsName, ByRef aryTemplateTagsV
 		For i=1 to j
 			If aryTemplateTagsName(i)="ZC_BLOG_COPYRIGHT" Then
 				Randomize
-				aryTemplateTagsValue(i)="<script language=""javascript"" type=""text/javascript"" src="""&ZC_BLOG_HOST&"zb_users/plugin/duoshuo/noresponse.asp?act=api_async"&Rnd&"""></script>" & aryTemplateTagsValue(i)
+				aryTemplateTagsValue(i)="<script language=""javascript"" type=""text/javascript"" src="""&ZC_BLOG_HOST&"zb_users/plugin/duoshuo/noresponse.asp?act=api_async&"&Rnd&"""></script>" & aryTemplateTagsValue(i)
 			End If
 		Next
 	End If
+End Sub
+
+'****************************************
+' 修正评论数
+'****************************************
+Function duoshuo_include_cc_fix(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
+	duoshuo_Initialize()
+	If duoshuo.config.Read("duoshuo_cc_fix")="True" Then
+		aryTemplateTagsValue(7)="<span id='duoshuo_comment"&aryTemplateTagsValue(1)&"'></span>"
+		If duoshuo.threadkey="" Then
+			duoshuo.threadkey=aryTemplateTagsValue(1) 
+			Call Add_Filter_Plugin("Filter_Plugin_TArticle_Build_TemplateTags","duoshuo_include_cc_fix_tag") '插入页面底部的版权信息，进行批量获取
+			Call Add_Filter_Plugin("Filter_Plugin_TArticleList_Build_TemplateTags","duoshuo_include_cc_fix_tag")
+		Else
+			duoshuo.threadkey=duoshuo.threadkey&","&aryTemplateTagsValue(1)
+		End If
+	End If
+End Function
+
+Function duoshuo_include_cc_fix_tag(ByRef aryTemplateTagsName, ByRef aryTemplateTagsValue)
+	Dim i,j
+	j=UBound(aryTemplateTagsName)
+	For i=1 to j
+		If aryTemplateTagsName(i)="ZC_BLOG_COPYRIGHT" Then
+			aryTemplateTagsValue(i)="<script type='text/javascript' src='http://api.duoshuo.com/threads/counts.jsonp?short_name="& Server.URLEncode(duoshuo.config.Read("short_name")) &"&threads="&Server.URLEncode(duoshuo.threadkey)&"&callback=duoshuo_callback'></script>" & aryTemplateTagsValue(i)
+		End If
+	Next
 End Function
 %>
 
@@ -67,5 +97,6 @@ duoshuo.show=function(){
 	k+='</'+'script><!-'+'- Duoshuo Comment END -->';
 	return k;
 }
+duoshuo.threadkey=""
 
 </script>
