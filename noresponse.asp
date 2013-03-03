@@ -1,6 +1,6 @@
 ﻿<%@ LANGUAGE="VBSCRIPT" CODEPAGE="65001"%>
 <% Option Explicit %>
-<% 'On Error Resume Next %>
+<% On Error Resume Next %>
 <% Response.Charset="UTF-8" %>
 <!-- #include file="..\..\c_option.asp" -->
 <!-- #include file="..\..\..\zb_system\function\c_function.asp" -->
@@ -11,13 +11,16 @@
 <!-- #include file="..\..\..\zb_system\function\c_system_plugin.asp" -->
 <!-- #include file="..\p_config.asp" -->
 <%
+ShowError_Custom="Response.Write ""({'success':'""&ZVA_ErrorMsg(id)&""'})"":Response.End"
+Dim intRight
+intRight=1
 
 Sub Duoshuo_NoResponse_Init()
 	Call System_Initialize()
 	'检查非法链接
 	Call CheckReference("")
 	'检查权限
-	If BlogUser.Level>1 Then Call ShowError(6)
+	If BlogUser.Level>intRight Then Call ShowError(6)
 	If CheckPluginState("duoshuo")=False Then Call ShowError(48)
 	Call DuoShuo_Initialize
 End Sub
@@ -29,7 +32,7 @@ Select Case Request.QueryString("act")
 	Case "export":Call Duoshuo_NoResponse_Init:Call Export
 	Case "fac":Call Duoshuo_NoResponse_Init:Call Fac
 	Case "api":Call Api
-	Case "api_async":Call api_async
+	Case "api_async":intRight=4:Call api_async
 	Case "save":Call Duoshuo_NoResponse_Init:Call Save
 End Select
 
