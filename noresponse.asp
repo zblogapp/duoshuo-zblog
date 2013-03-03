@@ -261,6 +261,10 @@ function Api_Run(){
 			
 		}
 		duoshuo.config.Save();
+		BlogReBuild_Statistics();
+		BlogReBuild_Comments();
+		BlogReBuild_Functions();
+		BlogReBuild_Default();
 		return {'success':'success'}
 	}
 	catch(e){
