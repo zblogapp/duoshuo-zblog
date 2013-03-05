@@ -188,7 +188,7 @@ Function comparison(ByVal str1,ByVal str2)
 	End If
 End Function
 %>
-<script language="javascript" runat="server">
+<script language="javascript" runat="server" >
 
 function Api_Async(){
 	Response.ContentType="application/javascript";//配置mime头
@@ -226,7 +226,7 @@ function Api_Run(){
 
 		ajax.open("GET",url);
 		ajax.send();//发送网络请求
-	
+
 		var json=eval("("+ajax.responseText+")");//实例化json
 		for(var i=0;i<json.response.length;i++){
 			var cmt=newClass("TComment"),tmp=json.response[i]; //实例化评论对象
@@ -241,6 +241,7 @@ function Api_Run(){
 					"getSeconds":function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
 				};
 				//Microsoft JScript for ASP不支持new Date("xxxTxxx")
+				
 				cmt.Author=tmp.meta.author_name;
 				if(tmp.meta.author_key==1) cmt.AuthorID=1;
 				cmt.EMail=tmp.meta.author_email;
@@ -249,6 +250,34 @@ function Api_Run(){
 				cmt.PostTime=_date.getFullYear()+"-"+(_date.getMonth())+"-"+_date.getDay()+" "+_date.getHours()+":"+_date.getMinutes()+":"+_date.getSeconds();
 				cmt.Content=tmp.meta.message;
 				cmt.log_id=tmp.meta.thread_key;
+				
+				//统一判定，防止ShowError
+				if(cmt.Author!=null){
+					if ((!CheckRegExp(cmt.Author,"[username]"))||(cmt.Author.length>ZC_USERNAME_MAX)) cmt.Author=ZVA_User_Level_Name(5);
+				}
+				else{
+					cmt.Author=ZVA_User_Level_Name(5)
+				}				
+				
+				if(cmt.EMail!=null){
+					if(cmt.EMail.length>0){
+						if((!CheckRegExp(cmt.EMail,"[email]"))||cmt.EMail.length>ZC_USERNAME_MAX) cmt.EMail="null@null.com"
+					}
+				}
+				else{
+					cmt.EMail="null@null.com"
+				}
+
+				if(cmt.HomePage!=null){
+					if(cmt.HomePage.length>0){
+						if((!CheckRegExp(cmt.HomePage,"[homepage]"))||cmt.HomePage.length>ZC_HOMEPAGE_MAX) cmt.HomePage=BlogHost
+					}
+				}
+				else{
+					cmt.HomePage=BlogHost
+				}
+
+				//写入数据库
 				if(tmp.meta.parent_id>0){
 					var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+tmp.meta.parent_id+"'");
 					if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
