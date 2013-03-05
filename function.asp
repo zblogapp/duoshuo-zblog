@@ -85,9 +85,8 @@ duoshuo.show=function(){
 	duoshuo_Initialize();
 	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->';
 	k+=duoshuo.config.Read("duoshuo_comments_wrapper_intro");
-	k+='<div class="ds-thread" data-category="<#article/category/id#>" data-thread-key="<#article/id#>" ';
-	k+='data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url=""></div>';
-	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
+	k+='<div class="ds-thread" data-thread-key="<#article/id#>" ';
+	k+= 'data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url="<#article/url#>"></div>';	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
 	k+='<!-'+'- Duoshuo Comment END -->';
 	return k;
 }

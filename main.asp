@@ -160,7 +160,7 @@ ActiveLeftMenu("aCommentMng");
 $(document).ready(function(){
 	var iframe = $('#duoshuo-remote-window');
 	resetIframeHeight = function(){
-		iframe.height($(window).height() - iframe.offset().top - 70);
+		iframe.height($(window).height() - iframe.offset().top);
 	};
 	resetIframeHeight();
 	$(window).resize(resetIframeHeight);
