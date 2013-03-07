@@ -11,7 +11,7 @@
 <!-- #include file="..\..\..\zb_system\function\c_system_plugin.asp" -->
 <!-- #include file="..\p_config.asp" -->
 <%
-ShowError_Custom="Response.Write ""({'success':'""&ZVA_ErrorMsg(id)&""'})"":Response.End"
+ShowError_Custom="If Err.Number>0 Then"&vbCrlf&"Response.Write ""({'success':'""&ZVA_ErrorMsg(id)&""'})"""&vbCrlf&"Response.End"&vbCrlf&"End If"
 Dim intRight
 intRight=1
 

@@ -75,26 +75,12 @@ End Function
 
 <script language="javascript" runat="server">
 var duoshuo={}
+//常用函数
+//HTTP GET请求
 duoshuo.get=function(s){return Request.QueryString(s).Item}
+//HTTP POST请求
 duoshuo.post=function(s){return Request.Form(s).Item}
-duoshuo.config=function(){}
-duoshuo.include={
-	redirect:function(){
-		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp")
-	}	
-}
-duoshuo.show=function(){
-	var k="";
-	duoshuo_Initialize();
-	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->';
-	k+=duoshuo.config.Read("duoshuo_comments_wrapper_intro");
-	k+='<div class="ds-thread" data-thread-key="<#article/id#>" ';
-	k+= 'data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url="<#article/url#>"></div>';	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
-	k+='<!-'+'- Duoshuo Comment END -->';
-	return k;
-}
-duoshuo.threadkey=""
-duoshuo.include.footdata="";
+//判断是否蜘蛛
 duoshuo.checkspider=function(){
 	duoshuo_Initialize();
 	if(duoshuo.config.Read("duoshuo_seo_enabled")!="True"){return false}
@@ -107,4 +93,37 @@ duoshuo.checkspider=function(){
 		return false
 	}
 }
+
+//挂口操作
+duoshuo.include={
+	redirect:function(){
+		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp")
+	}		
+}
+duoshuo.show=function(){
+	var k="";
+	duoshuo_Initialize();
+	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->';
+	k+=duoshuo.config.Read("duoshuo_comments_wrapper_intro");
+	k+='<div class="ds-thread" data-thread-key="<#article/id#>" ';
+	k+= 'data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url="<#article/url#>"></div>';	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
+	k+='<!-'+'- Duoshuo Comment END -->';
+	return k;
+}
+
+//临时变量
+duoshuo.config=function(){}
+duoshuo.include.footdata="";
+duoshuo.threadkey="";
+
+
+//API处理函数
+duoshuo.api={}
+duoshuo.api.create=function(meta_json){
+}
+duoshuo.api.approve=function(meta_json){}
+duoshuo.api.spam=function(meta_json){}
+duoshuo.api.deletepost=function(meta_json){}
+duoshuo.api.deleteforever=function(meta_json){}
+duoshuo.api.update=function(meta_json){return false //目前还没有逻辑}
 </script>
