@@ -231,62 +231,6 @@ function Api_Run(){
 		for(var i=0;i<json.response.length;i++){
 			var cmt=newClass("TComment"),tmp=json.response[i]; //实例化评论对象
 			if(tmp.action=="create"){
-				_date={
-					"date":tmp.meta.created_at,
-					"getMonth":function(){return this.date.split("T")[0].split("-")[1]},
-					"getDay":function(){return this.date.split("T")[0].split("-")[2]},
-					"getFullYear":function(){return this.date.split("T")[0].split("-")[0]},
-					"getHours":function(){return this.date.split("T")[1].split(":")[0]},
-					"getMinutes":function(){return this.date.split("T")[1].split(":")[1]},
-					"getSeconds":function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
-				};
-				//Microsoft JScript for ASP不支持new Date("xxxTxxx")
-				
-				cmt.Author=tmp.meta.author_name;
-				if(tmp.meta.author_key==1) cmt.AuthorID=1;
-				cmt.EMail=tmp.meta.author_email;
-				cmt.HomePage=tmp.meta.author_url;
-				cmt.IP=tmp.meta.ip;
-				cmt.PostTime=_date.getFullYear()+"-"+(_date.getMonth())+"-"+_date.getDay()+" "+_date.getHours()+":"+_date.getMinutes()+":"+_date.getSeconds();
-				cmt.Content=tmp.meta.message;
-				cmt.log_id=tmp.meta.thread_key;
-				
-				//统一判定，防止ShowError
-				if(cmt.Author!=null){
-					if ((!CheckRegExp(cmt.Author,"[username]"))||(cmt.Author.length>ZC_USERNAME_MAX)) cmt.Author=ZVA_User_Level_Name(5);
-				}
-				else{
-					cmt.Author=ZVA_User_Level_Name(5)
-				}				
-				
-				if(cmt.EMail!=null){
-					if(cmt.EMail.length>0){
-						if((!CheckRegExp(cmt.EMail,"[email]"))||cmt.EMail.length>ZC_USERNAME_MAX) cmt.EMail="null@null.com"
-					}
-				}
-				else{
-					cmt.EMail="null@null.com"
-				}
-
-				if(cmt.HomePage!=null){
-					if(cmt.HomePage.length>0){
-						if((!CheckRegExp(cmt.HomePage,"[homepage]"))||cmt.HomePage.length>ZC_HOMEPAGE_MAX) cmt.HomePage=BlogHost
-					}
-				}
-				else{
-					cmt.HomePage=BlogHost
-				}
-
-				//写入数据库
-				if(tmp.meta.parent_id>0){
-					var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+tmp.meta.parent_id+"'");
-					if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
-					//判断是否有父节点
-				} 
-				if(cmt.Post()){
-					objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('"+tmp.meta.post_id+"',"+cmt.ID+")");
-					duoshuo.config.Write("log_id",tmp.log_id)
-				}
 				
 			}
 			cmt=null; 
