@@ -94,15 +94,16 @@ duoshuo.checkspider=function(){
 	}
 }
 //日期处理
-duoshuo.date=function(){
+duoshuo.date=function(d){
 	//Microsoft JScript for ASP不支持new Date("xxxTxxx")
-	this.date="2012-12-21T12:00+0800";
+	this.date=d;//"2012-12-21T12:00+0800";
 	this.getMonth=function(){return this.date.split("T")[0].split("-")[1]}
 	this.getDay=function(){return this.date.split("T")[0].split("-")[2]}
 	this.getFullYear=function(){return this.date.split("T")[0].split("-")[0]}
 	this.getHours=function(){return this.date.split("T")[1].split(":")[0]}
 	this.getMinutes=function(){return this.date.split("T")[1].split(":")[1]}
 	this.getSeconds=function(){return this.date.split("T")[1].split(":")[2].split("+")[0]}
+	
 }
 
 //挂口操作
@@ -130,60 +131,78 @@ duoshuo.threadkey="";
 
 //API处理函数
 duoshuo.api={}
-duoshuo.api.create=function(meta_json){
-	var _date=duoshuo.date(meta_json.create_at)
-				
-				
-				cmt.Author=meta_json.meta.author_name;
-				if(meta_json.meta.author_key==1) cmt.AuthorID=1;
-				cmt.EMail=meta_json.meta.author_email;
-				cmt.HomePage=meta_json.meta.author_url;
-				cmt.IP=meta_json.meta.ip;
-				cmt.PostTime=_date.getFullYear()+"-"+(_date.getMonth())+"-"+_date.getDay()+" "+_date.getHours()+":"+_date.getMinutes()+":"+_date.getSeconds();
-				cmt.Content=meta_json.meta.message;
-				cmt.log_id=meta_json.meta.thread_key;
-				
-				//统一判定，防止ShowError
-				if(cmt.Author!=null){
-					if ((!CheckRegExp(cmt.Author,"[username]"))||(cmt.Author.length>ZC_USERNAME_MAX)) cmt.Author=ZVA_User_Level_Name(5);
-				}
-				else{
-					cmt.Author=ZVA_User_Level_Name(5)
-				}				
-				
-				if(cmt.EMail!=null){
-					if(cmt.EMail.length>0){
-						if((!CheckRegExp(cmt.EMail,"[email]"))||cmt.EMail.length>ZC_USERNAME_MAX) cmt.EMail="null@null.com"
-					}
-				}
-				else{
-					cmt.EMail="null@null.com"
-				}
+duoshuo.api.create = function(meta_json,log_id) {
+	var cmt=newClass("TComment"),_date = new duoshuo.date(meta_json.meta.created_at);
 
-				if(cmt.HomePage!=null){
-					if(cmt.HomePage.length>0){
-						if((!CheckRegExp(cmt.HomePage,"[homepage]"))||cmt.HomePage.length>ZC_HOMEPAGE_MAX) cmt.HomePage=BlogHost
-					}
-				}
-				else{
-					cmt.HomePage=BlogHost
-				}
+    cmt.Author = meta_json.meta.author_name;
+    if (meta_json.meta.author_key == 1) cmt.AuthorID = 1;
+    cmt.EMail = meta_json.meta.author_email;
+    cmt.HomePage = meta_json.meta.author_url;
+    cmt.IP = meta_json.meta.ip;
+    cmt.PostTime = _date.getFullYear() + "-" + (_date.getMonth()) + "-" + _date.getDay() + " " + _date.getHours() + ":" + _date.getMinutes() + ":" + _date.getSeconds();
+    cmt.Content = meta_json.meta.message;
+    cmt.log_id = meta_json.meta.thread_key;
 
-				//写入数据库
-				if(meta_json.meta.parent_id>0){
-					var objRs=objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='"+meta_json.meta.parent_id+"'");
-					if(!objRs.EOF) cmt.ParentID=objRs("ds_cmtid").Value
-					//判断是否有父节点
-				} 
-				if(cmt.Post()){
-					objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('"+meta_json.meta.post_id+"',"+cmt.ID+")");
-					duoshuo.config.Write("log_id",tmp.log_id)
-				}
+    //统一判定，防止ShowError
+    if (cmt.Author != null) {
+        if ((!CheckRegExp(cmt.Author, "[username]")) || (cmt.Author.length > ZC_USERNAME_MAX)) cmt.Author = ZVA_User_Level_Name(5);
+    }
+    else {
+        cmt.Author = ZVA_User_Level_Name(5)
+    }
 
+    if (cmt.EMail != null) {
+        if (cmt.EMail.length > 0) {
+            if ((!CheckRegExp(cmt.EMail, "[email]")) || cmt.EMail.length > ZC_USERNAME_MAX) cmt.EMail = "null@null.com"
+        }
+    }
+    else {
+        cmt.EMail = "null@null.com"
+    }
+
+    if (cmt.HomePage != null) {
+        if (cmt.HomePage.length > 0) {
+            if ((!CheckRegExp(cmt.HomePage, "[homepage]")) || cmt.HomePage.length > ZC_HOMEPAGE_MAX) cmt.HomePage = BlogHost
+        }
+    }
+    else {
+        cmt.HomePage = BlogHost
+    }
+
+    //写入数据库
+    if (meta_json.meta.parent_id > 0) {
+        var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta.parent_id + "'");
+        if (!objRs.EOF) cmt.ParentID = objRs("ds_cmtid").Value
+        //判断是否有父节点
+    }
+    if (cmt.Post()) {
+        objConn.Execute("INSERT INTO [blog_Plugin_duoshuo] (ds_key,ds_cmtid) VALUES('" + meta_json.meta.post_id + "'," + cmt.ID + ")");
+    }
+	
+	cmt=null; 
+	return meta_json.log_id;
+	
 }
-duoshuo.api.approve=function(meta_json){}
-duoshuo.api.spam=function(meta_json){}
-duoshuo.api.deletepost=function(meta_json){}
-duoshuo.api.deleteforever=function(meta_json){}
-duoshuo.api.update=function(meta_json){return false //目前还没有逻辑}
+duoshuo.api.approve=function(meta_json){
+	var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta[0] + "'");
+	if(!objRs.EOF){
+		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck="+(ZC_MSSQL_ENABLE?"0":"FALSE")+" WHERE comm_ID="+objRs("ds_cmtid").Value)
+	}
+	return meta_json.log_id;
+}
+duoshuo.api.spam=function(meta_json){
+	var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta[0] + "'");
+	if(!objRs.EOF){
+		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck="+(ZC_MSSQL_ENABLE?"1":"TRUE")+" WHERE comm_ID="+objRs("ds_cmtid").Value)
+	}
+	return meta_json.log_id;
+}
+duoshuo.api.deletepost=function(meta_json){
+	var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta[0] + "'");
+	if(!objRs.EOF){
+		objConn.Execute("DELETE FROM blog_Comment WHERE comm_ID="+objRs("ds_cmtid").Value)
+	}
+	return meta_json.log_id;
+}
+duoshuo.api.update=function(meta_json){return false }//目前还没有逻辑
 </script>
