@@ -195,7 +195,7 @@ function Api_Async(){
 	
 	var _last=Application(ZC_BLOG_CLSID+"duoshuo_lastpub"),_now=new Date().getTime();
 	if(typeof(_last)=="number"){//20分钟时间限制
-		if((_now-_last)/1000>=60*0.1){ 
+		if((_now-_last)/1000>=60*20){ 
 			_last=_now
 		}
 		else{

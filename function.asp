@@ -211,14 +211,14 @@ duoshuo.api.update=function(meta_json){return false }//目前还没有逻辑
 
 duoshuo.api.sync=function(){
 	var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0,log_id="";	
-	url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
+	url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?limit=50&short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
 	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
 	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
 
 	ajax.open("GET",url);
 	ajax.send();//发送网络请求
 	var json=eval("("+ajax.responseText+")");//实例化json
-	for(var i=0;i<json.response.length;i++){
+	for(var i=0;i<json.response.length;i++){ 
 		switch(json.response[i].action){
 			case "create":
 				log_id = duoshuo.api.create(json.response[i]) ;
@@ -242,6 +242,7 @@ duoshuo.api.sync=function(){
 		if(log_id){duoshuo.config.Write("log_id",log_id)}
 	}
 	duoshuo.config.Save();	
+	if(json.response.length==50) duoshuo.api.sync();
 }
 
 
