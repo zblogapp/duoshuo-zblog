@@ -141,6 +141,7 @@ duoshuo.api.create = function(meta_json,log_id) {
     cmt.IP = meta_json.meta.ip;
     cmt.PostTime = _date.getFullYear() + "-" + (_date.getMonth()) + "-" + _date.getDay() + " " + _date.getHours() + ":" + _date.getMinutes() + ":" + _date.getSeconds();
     cmt.Content = meta_json.meta.message;
+	cmt.Agent = meta_json.meta.agent;
     cmt.log_id = meta_json.meta.thread_key;
 
     //统一判定，防止ShowError
