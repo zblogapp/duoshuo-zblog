@@ -214,49 +214,16 @@ function Api_Async(){
 function Api_Run(){
 	Duoshuo_NoResponse_Init();//加载数据库
 	if(duoshuo.config.Read("duoshuo_cron_sync_enabled")!="async") return {'success':'noasync'}
-	//try{
-		var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0,log_id="";
-		
-		url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
-		url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
-		if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
-
-		ajax.open("GET",url);
-		ajax.send();//发送网络请求
-
-		var json=eval("("+ajax.responseText+")");//实例化json
-		for(var i=0;i<json.response.length;i++){
-			switch(json.response[i].action){
-				case "create":
-					log_id = duoshuo.api.create(json.response[i]) ;
-				break;
-				case "approve":
-					log_id = duoshuo.api.approve(json.response[i]);
-				break;
-				case "spam":
-				case "delete":
-					log_id = duoshuo.api.spam(json.response[i]);
-				break;
-				case "delete-forever":
-					log_id = duoshuo.api.deletepost(json.response[i]);
-				break;
-				case "update":
-					log_id = duoshuo.api.deletepost(json.response[i]);
-				break;
-				default:
-				break;
-			}
-			if(log_id){duoshuo.config.Write("log_id",log_id)}
-		}
-		duoshuo.config.Save();
+	try{
+		duoshuo.api.sync();
 		BlogReBuild_Statistics();
 		BlogReBuild_Comments();
 		BlogReBuild_Functions();
 		BlogReBuild_Default();
 		return {'success':'success'}
-	//}
-	//catch(e){
-	//	return {'success':e.message}
-	//}
+	}
+	catch(e){
+		return {'success':e.message}
+	}
 }
 </script>
