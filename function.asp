@@ -186,25 +186,25 @@ duoshuo.api.create = function(meta_json,log_id) {
 }
 duoshuo.api.approve=function(meta_json){
 	if(!ZC_MSSQL_ENABLE){
-		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) SET comm_IsCheck=FALSE");
+		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") )) SET comm_IsCheck=FALSE");
 	}
 	else{
-		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=0 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ");
+		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=0 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") )) ");
 	}
 	return meta_json.log_id;
 }
 duoshuo.api.spam=function(meta_json){
 	if(!ZC_MSSQL_ENABLE){
-		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) SET comm_IsCheck=TRUE");
+		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") )) SET comm_IsCheck=TRUE");
 	}
 	else{
-		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=1 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ");
+		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=1 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") )) ");
 	}
 	return meta_json.log_id;
 }
 duoshuo.api.deletepost=function(meta_json){
-	objConn.Execute("DELETE blog_Comment"+(ZC_MSSQL_ENABLE?"":".*")+" FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON  (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) and (blog_plugin_duoshuo.ds_key) in("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ");
-	objConn.Execute("DELETE blog_plugin_duoshuo WHERE ds_key in("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") ");
+	objConn.Execute("DELETE blog_Comment"+(ZC_MSSQL_ENABLE?"":".*")+" FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON  (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) and (blog_plugin_duoshuo.ds_key) in("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") )) ");
+	objConn.Execute("DELETE blog_plugin_duoshuo WHERE ds_key in("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") ");
 
 	return meta_json.log_id;
 }
@@ -246,14 +246,15 @@ duoshuo.api.sync=function(){
 	if(json.response.length==50) duoshuo.api.sync();
 }
 
-
-Array.prototype.join2=function(config){
+//我X,Array.prototype居然会冲突，操蛋
+duoshuo.join2=function(config){
+	if(!config.array) config.array=[]
 	if(!config.before) config.before="";
 	if(!config.after) config.after="";
 	var str="";
-	for(var i=0;i<this.length;i++){
-		str+=config.before+this[i]+config.after
-		if(i<this.length-1){str+=config.splittag}
+	for(var i=0;i<config.array.length;i++){
+		str+=config.before+config.array[i]+config.after
+		if(i<config.array.length-1){str+=config.splittag}
 	}
 	return str
 }
