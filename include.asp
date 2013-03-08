@@ -32,7 +32,7 @@ Function InstallPlugin_duoshuo()
 	'判断是否有duoshuo这个库，有则err_number=0
 	If Err.Number<>0 Then
 		If ZC_MSSQL_ENABLE Then
-			objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default """",ds_cmtid int default 0)")
+			objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default '',ds_cmtid int default 0)")
 		Else
 			objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_cmtid int default 0)")
 		End If

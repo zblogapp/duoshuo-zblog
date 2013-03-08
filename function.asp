@@ -184,24 +184,25 @@ duoshuo.api.create = function(meta_json,log_id) {
 	
 }
 duoshuo.api.approve=function(meta_json){
-	var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta[0] + "'");
-	if(!objRs.EOF){
-		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck="+(ZC_MSSQL_ENABLE?"0":"FALSE")+" WHERE comm_ID="+objRs("ds_cmtid").Value)
+	if(!ZC_MSSQL_ENABLE){
+		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_id) In("+meta_json.meta.join(",")+") )) SET comm_IsCheck=FALSE");
+	}
+	else{
+		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=0 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_id) In("+meta_json.meta.join(",")+") )) ");
 	}
 	return meta_json.log_id;
 }
 duoshuo.api.spam=function(meta_json){
-	var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta[0] + "'");
-	if(!objRs.EOF){
-		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck="+(ZC_MSSQL_ENABLE?"1":"TRUE")+" WHERE comm_ID="+objRs("ds_cmtid").Value)
+	if(!ZC_MSSQL_ENABLE){
+		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_id) In("+meta_json.meta.join(",")+") )) SET comm_IsCheck=TRUE");
+	}
+	else{
+		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=1 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_id) In("+meta_json.meta.join(",")+") )) ");
 	}
 	return meta_json.log_id;
 }
 duoshuo.api.deletepost=function(meta_json){
-	var objRs = objConn.Execute("SELECT TOP 1 ds_cmtid FROM blog_Plugin_duoshuo WHERE ds_key='" + meta_json.meta[0] + "'");
-	if(!objRs.EOF){
-		objConn.Execute("DELETE FROM blog_Comment WHERE comm_ID="+objRs("ds_cmtid").Value)
-	}
+	objConn.Execute("DELETE blog_Comment.* from blog_comment INNER JOIN [blog_plugin_duoshuo] ON  (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) and (blog_plugin_duoshuo.ds_id) in("+meta_json.meta.join(",")+") )) ");
 	return meta_json.log_id;
 }
 duoshuo.api.update=function(meta_json){return false }//目前还没有逻辑
