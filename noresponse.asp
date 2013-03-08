@@ -1,6 +1,6 @@
 ﻿<%@ LANGUAGE="VBSCRIPT" CODEPAGE="65001"%>
 <% Option Explicit %>
-<% On Error Resume Next %>
+<% 'On Error Resume Next %>
 <% Response.Charset="UTF-8" %>
 <!-- #include file="..\..\c_option.asp" -->
 <!-- #include file="..\..\..\zb_system\function\c_function.asp" -->
@@ -195,7 +195,7 @@ function Api_Async(){
 	
 	var _last=Application(ZC_BLOG_CLSID+"duoshuo_lastpub"),_now=new Date().getTime();
 	if(typeof(_last)=="number"){//20分钟时间限制
-		if((_now-_last)/1000>=60*20){ 
+		if((_now-_last)/1000>=60*0.1){ 
 			_last=_now
 		}
 		else{
@@ -214,7 +214,7 @@ function Api_Async(){
 function Api_Run(){
 	Duoshuo_NoResponse_Init();//加载数据库
 	if(duoshuo.config.Read("duoshuo_cron_sync_enabled")!="async") return {'success':'noasync'}
-	try{
+	//try{
 		var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0,log_id="";
 		
 		url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
@@ -223,7 +223,7 @@ function Api_Run(){
 
 		ajax.open("GET",url);
 		ajax.send();//发送网络请求
-//Response.Write(ajax.responseText)
+Response.Write(ajax.responseText)
 		var json=eval("("+ajax.responseText+")");//实例化json
 		for(var i=0;i<json.response.length;i++){
 			switch(json.response[i].action){
@@ -254,9 +254,9 @@ function Api_Run(){
 		BlogReBuild_Functions();
 		BlogReBuild_Default();
 		return {'success':'success'}
-	}
-	catch(e){
-		return {'success':e.message}
-	}
+	//}
+	//catch(e){
+	//	return {'success':e.message}
+	//}
 }
 </script>
