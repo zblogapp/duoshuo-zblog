@@ -188,7 +188,6 @@ duoshuo.api.approve=function(meta_json){
 		objConn.Execute("UPDATE blog_Comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) SET comm_IsCheck=FALSE");
 	}
 	else{
-Response.Write("UPDATE blog_Comment SET comm_IsCheck=0 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ")
 		objConn.Execute("UPDATE blog_Comment SET comm_IsCheck=0 FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) And (blog_plugin_duoshuo.ds_key) In("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ");
 	}
 	return meta_json.log_id;
@@ -203,7 +202,9 @@ duoshuo.api.spam=function(meta_json){
 	return meta_json.log_id;
 }
 duoshuo.api.deletepost=function(meta_json){
-	objConn.Execute("DELETE blog_Comment.* from blog_comment INNER JOIN [blog_plugin_duoshuo] ON  (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) and (blog_plugin_duoshuo.ds_key) in("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ");
+	objConn.Execute("DELETE blog_Comment"+(ZC_MSSQL_ENABLE?"":".*")+" FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON  (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) and (blog_plugin_duoshuo.ds_key) in("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") )) ");
+	objConn.Execute("DELETE blog_plugin_duoshuo WHERE ds_key in("+meta_json.meta.join2({before:"'",after:"'",splittag:","})+") ");
+
 	return meta_json.log_id;
 }
 duoshuo.api.update=function(meta_json){return false }//目前还没有逻辑
@@ -214,7 +215,7 @@ Array.prototype.join2=function(config){
 	var str="";
 	for(var i=0;i<this.length;i++){
 		str+=config.before+this[i]+config.after
-		if(i<config.array-1){str+=config.splittag}
+		if(i<this.length-1){str+=config.splittag}
 	}
 	return str
 }

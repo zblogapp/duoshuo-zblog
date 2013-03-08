@@ -223,7 +223,7 @@ function Api_Run(){
 
 		ajax.open("GET",url);
 		ajax.send();//发送网络请求
-Response.Write(ajax.responseText)
+
 		var json=eval("("+ajax.responseText+")");//实例化json
 		for(var i=0;i<json.response.length;i++){
 			switch(json.response[i].action){
@@ -234,9 +234,9 @@ Response.Write(ajax.responseText)
 					log_id = duoshuo.api.approve(json.response[i]);
 				break;
 				case "spam":
+				case "delete":
 					log_id = duoshuo.api.spam(json.response[i]);
 				break;
-				case "delete":
 				case "delete-forever":
 					log_id = duoshuo.api.deletepost(json.response[i]);
 				break;
