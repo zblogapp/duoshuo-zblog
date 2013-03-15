@@ -186,17 +186,6 @@ Function Export_SubFunc_Comment(sql)
 End Function
 
 
-Function jsObject
-	Set jsObject = new duoshuo_aspjson
-	jsObject.Kind = 0
-End Function
-
-Function jsArray
-	Set jsArray = new duoshuo_aspjson
-	jsArray.Kind = 1
-End Function
-
-
 
 
 Sub Api()
