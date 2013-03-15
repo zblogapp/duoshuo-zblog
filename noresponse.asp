@@ -87,13 +87,7 @@ Sub Export
 		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 		
 	End Select
-
 	
-	'strData="short_name="+Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&posts="& strData
-	
-	
-	Response.Write objXmlHttp.ResponseText
-	'Response.Write "}"
 	Set objXmlHttp=Nothing
 	Response.End
 
@@ -105,17 +99,17 @@ Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	strSQL=strSQL & ",comm_Author As author_name,comm_Email As author_email,comm_HomePage As author_url,comm_PostTime As created_at"
 	strSQL=strSQL & ",comm_ip As ip,comm_agent As agent,comm_Content As message FROM blog_Comment WHERE comm_IsCheck=0"
 	If intMax>0 Then strSQL=strSQL & " AND (comm_ID BETWEEN "&intMin&" AND "&intMax&")"
-	strData="{""posts"":"
-	strData=strData & Export_SubFunc_All(strSQL).jsString
-	strData=strData & "}"
+	strData=strData & Export_SubFunc_Comment(strSQL)
 	
-	objXmlHttp.Open "POST",duoshuo.url.posts.import & "?short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret"))
+	objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.posts.import
 	
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
-	'Response.Write "{'orig':"&strData&",'result':"
-	strData="posts="&Server.URLEncode(strData)
-	objXmlHttp.Send strData
+	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
 	
+	'返回数据格式：
+	'{"response":{"149":"1171546132069744642","150":"1171546132069744643","151":"1171546132069744644","152":"1171546132069744645","154":"1171546132069744646","155":"1171546132069744647","156":"1171546132069744648","157":"1171546132069744649"},"code":0}
+
+		
 End Function
 
 Function Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
@@ -133,7 +127,7 @@ Function Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
 End Function
 
 Function Export_SubFunc_Article(strSQL)
-	Dim rs, jsa, col , o , k , aryData() , i
+	Dim rs, col , o , k , aryData() , i
 	Redim aryData(-1)
 	i=-1
 	Set rs = objConn.Execute(strSQL)
@@ -166,24 +160,29 @@ Function Export_SubFunc_Article(strSQL)
     Export_SubFunc_Article = Join(aryData,"&")'Server.URLEncode(Join(aryData,"&"))
 End Function
 
-Function Export_SubFunc_All(sql)
-    Dim rs, jsa, col, k
+Function Export_SubFunc_Comment(sql)
+    Dim rs, col, k , aryData() , i
+	Redim aryData(-1)
+	i=-1
     Set rs = objConn.Execute(sql)
-    Set jsa = jsArray()
-	jsa.Kind=1
     While Not (rs.EOF Or rs.BOF)
-		Set jsa(Null) = jsObject()
 		For Each col In rs.Fields
-			If col.Name = "created_at" Then
+			Redim Preserve aryData(i+1)
+			i=Ubound(aryData)
+			aryData(i)="posts["&rs("post_key")&"]["
+			If col.Name = "create_at" Then
 				k=CStr(col.Value)
-				jsa(Null)(col.Name) = Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2) & " " & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2)
-			Else
-	            jsa(Null)(col.Name) = col.Value
-            End If
+				aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
+				aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
+			Else 
+				aryData(i)=aryData(i)&col.Name & "]=" & rs(col.Name)
+			End If
 		Next
         rs.MoveNext
     Wend
-    Set Export_SubFunc_All = jsa
+	Export_SubFunc_Comment = Join(aryData,"&")
+
+
 End Function
 
 
