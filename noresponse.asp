@@ -56,20 +56,24 @@ End Sub
 
 Sub Export
 	Server.ScriptTimeout=1000000
-	Dim objXmlHttp,strData,strSQL,intMin,intMax
-	strData=""
-	strSQL=""
+	ShowError_Custom="If Err.Number>0 Then"&vbCrlf&"duoshuo.config.Save()"&vbCrlf&"Response.Write ""({'success':'""&ZVA_ErrorMsg(id)&""'})"""&vbCrlf&"Response.End"&vbCrlf&"End If"
+	Dim objXmlHttp,strSuccess,intMin,intMax
+	strSuccess=""
 	intMin=0
 	intMax=0
 	Set objXmlHttp=Server.CreateObject("MSXML2.ServerXMLHTTP")
 	
-	Response.ContentType="application/json"
-	
+	'Response.ContentType="application/json"
+	'鬼知道搞毛，jQuery在Server返回一些Content-Type时不会执行success
+	StarTime = Timer()
 	Select Case Request.Form("type")
 	
 	Case "all"
+	
 		Call Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
 		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
+		strSuccess="全部数据导出完成"
+		
 	Case "article"
 	
 		intMin=Request.Form("articlemin")
@@ -77,6 +81,7 @@ Sub Export
 		Call CheckParameter(intMin,"int",1)
 		Call CheckParameter(intMax,"int",1)
 		Call Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
+		strSuccess="文章数据("&intMin&" - "&intMax&")导出完成"
 		
 	Case "comment"
 	
@@ -85,10 +90,15 @@ Sub Export
 		Call CheckParameter(intMin,"int",1)
 		Call CheckParameter(intMax,"int",1)
 		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
+		strSuccess="评论数据("&intMin&" - "&intMax&")导出完成"
 		
+	Case "backup"
+		strSuccess=Api_Run().success
+		If strSuccess="success" Then strSuccess="数据从多说备份到本地完成"
 	End Select
 	
 	Set objXmlHttp=Nothing
+	Response.Write "{'success':'"&strSuccess&"，用时"&RunTime()&"ms'}"
 	Response.End
 
 End Sub
@@ -114,7 +124,7 @@ End Function
 
 Function Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
 	Dim strSQL,strData
-	strSQL="SELECT [log_ID] As thread_key,[log_CateID],[log_Title] as title,[log_Intro] as excerpt,[log_Level],[log_AuthorID] as author_key,[log_PostTime],[log_ViewNums] as views,[log_Url] as url,[log_Type],[log_Content] as content FROM [blog_Article]"
+	strSQL="SELECT [log_ID] As thread_key,[log_CateID],[log_Title] as title,[log_Intro] as excerpt,[log_Level],[log_AuthorID] as author_key,[log_PostTime],[log_ViewNums] as views,[log_Url] as url,[log_Type],'' as content FROM [blog_Article]"
 	If intMax>0 Then strSQL=strSQL & " WHERE (log_ID BETWEEN "&intMin&" AND "&intMax&")"
 	strData=Export_SubFunc_Article(strSQL)
 	
@@ -144,11 +154,11 @@ Function Export_SubFunc_Article(strSQL)
 						aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
 						aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
 					ElseIf col.Name = "excerpt" Then
-						aryData(i)=aryData(i)&col.Name & "]=" & o.HtmlIntro
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(o.HtmlIntro)
 					ElseIf col.Name="url" Then
-						aryData(i)=aryData(i)&col.Name & "]=" & TransferHTML(o.FullUrl,"[zc_blog_host]")
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(TransferHTML(o.FullUrl,"[zc_blog_host]"))
 					ElseIf Left(col.Name,4)<>"log_" Then 
-						aryData(i)=aryData(i)&col.Name & "]=" & rs(col.Name)
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
 					Else
 						i=i-1
 					End If
@@ -175,7 +185,7 @@ Function Export_SubFunc_Comment(sql)
 				aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
 				aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
 			Else 
-				aryData(i)=aryData(i)&col.Name & "]=" & rs(col.Name)
+				aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
 			End If
 		Next
         rs.MoveNext

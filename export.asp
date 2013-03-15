@@ -46,7 +46,7 @@ tr {
           <div id="divMain2"> 
             <script type="text/javascript">ActiveTopMenu("aPlugInMng");</script>
             <form action="noresponse.asp?act=export" method="post" id="_form">
-              <p id="_status">必须导出数据到多说才可以正常使用。在这里导出后，必须打开<a href="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/tools/import/" target="_blank">http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/tools/import/</a>以导入到多说。</p>
+              <p id="_status">必须导出数据到多说才可以正常使用。如导入有任何问题，请联系多说客服解决。</p>
               <table width="100%">
                 <thead>
                   <tr>
@@ -55,7 +55,7 @@ tr {
                   </tr>
                 </thead>
                 <tbody>
-                                  <tr>
+                  <tr>
                     <td><p><span class="bold"> · 立即进行数据同步</span><br/>
                         <span class="note"></span></p></td>
                     <td><input name="" type="submit" class="button" onClick="$('#type').val('backup')" value="立即从多说备份数据" /></td>
@@ -63,10 +63,11 @@ tr {
                   <tr>
                     <td><p><span class="bold"> · 一键导出</span><br/>
                         <span class="note">如您的站点数据过多，请选择下面的分块导出</span></p></td>
-                    <td><input name="" type="submit" class="button" onClick="if(confirm('这是一个很占资源的过程，你确定要继续吗？')){$('#type').val('all')}else{return false}" value="一键导出全部数据" /></td>
+                    <td><input name="" type="submit" class="button" onClick="$('#type').val('all')" value="一键导出全部数据" /></td>
                   </tr>
                   <tr>
-                    <td><p><span class="bold"> · 文章数据导出</span></p></td>
+                    <td><p><span class="bold"> · 文章数据导出</span><br/>
+                        <span class="note">文章数据无论是否存在都将同步</span></p></td>
                     <td><%Dim o:o=objConn.Execute("SELECT MAX([log_ID]) FROM blog_Article")(0)%>
                       <p> 文章ID:
                         <input type="number" id="articlemin" name="articlemin" min="1" max="<%=o%>" value="1"/>
@@ -74,19 +75,20 @@ tr {
                         <input type="number" id="articlemax" name="articlemax" min="1" max="<%=o%>" value="<%=o%>"/>
                       </p>
                       <p>
-                        <input name="" type="submit" class="button" onClick="if(confirm('这是一个很占资源的过程，你确定要继续吗？')){$('#type').val('article')}else{return false}" value="导出文章" />
+                        <input name="" type="submit" class="button" onClick="$('#type').val('article')" value="导出文章" />
                       </p></td>
                   </tr>
                   <tr>
-                    <td><p><span class="bold"> · 评论数据导出</span></p></td>
-                    <td><%o=objConn.Execute("SELECT MAX([comm_ID]) FROM blog_Comment")(0)%>
-                      <p> 评论ID:
+                    <%o=objConn.Execute("SELECT MAX([comm_ID]) FROM blog_Comment")(0):Dim p:p=objConn.Execute("SELECT COUNT([comm_ID]) FROM blog_Comment")(0)-objConn.Execute("SELECT COUNT([ds_cmtid]) FROM blog_Plugin_Duoshuo")(0)%>
+                    <td><p><span class="bold"> · 评论数据导出</span><br/>
+                        <span class="note">只同步未向多说同步的评论，还有<%=IIf(p>0,p,0)%>条未同步</span></p></td>
+                    <td><p> 评论ID:
                         <input type="number" id="commentmin" name="commentmin" min="1" max="<%=o%>" value="1"/>
                         -
                         <input type="number" id="commentmax" name="commentmax" min="1" max="<%=o%>" value="<%=o%>"/>
                       </p>
                       <p>
-                        <input name="" type="submit" class="button" onClick="if(confirm('这是一个很占资源的过程，你确定要继续吗？')){$('#type').val('comment')}else{return false}" value="导出评论" />
+                        <input name="" type="submit" class="button" onClick="$('#type').val('comment')" value="导出评论" />
                       </p></td>
                   </tr>
                 </tbody>
@@ -103,25 +105,33 @@ tr {
         $(document).ready(function(){
           $("#_form").submit(function(){
             $("#_status").html("正在执行操作，请稍等..");
-            $.post("noresponse.asp?act=export",{
-                type:$("#type").val(),
-                commentmin:$("#commentmin").val(),
-                commentmax:$("#commentmax").val(),
-                articlemax:$("#articlemax").val(),
-                articlemin:$("#articlemin").val()
-            },function(data){
-              try{
-                var o=eval('('+data+')');
-                $("#_status").html(data.success);
-              }
-              catch(e){
-                $("#_status").html("操作出错..服务器返回"+data);
-              }
-            });
-            return false;
-          })
-        })
-        </script>
+			try{
+				$.post("noresponse.asp?act=export",{
+					type:$("#type").val(),
+					commentmin:$("#commentmin").val(),
+					commentmax:$("#commentmax").val(),
+					articlemax:$("#articlemax").val(),
+					articlemin:$("#articlemin").val()
+				},function(data){
+				  try{
+					  console.log(data)
+					var o=eval('('+data+')');
+					
+					$("#_status").html(o.success);
+				  }
+				  catch(e){
+					$("#_status").html("操作出错..服务器返回"+data);
+				  }
+				});
+				
+			  
+		  }
+		  catch(e){
+		  	$("#_status").html("操作出错..服务器500错误..");
+		  }
+		  return false;
+       })})
+        </script> 
         <!--#include file="..\..\..\zb_system\admin\admin_footer.asp"-->
 <script type="text/javascript">
 ActiveLeftMenu("aCommentMng");
