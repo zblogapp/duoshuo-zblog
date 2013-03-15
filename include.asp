@@ -1,5 +1,4 @@
 ﻿<!-- #include file="function.asp" -->
-<!-- #include file="aspjson.asp" -->
 <%
 '注册插件
 Call RegisterPlugin("duoshuo","ActivePlugin_duoshuo")
@@ -22,7 +21,7 @@ Function ActivePlugin_duoshuo()
 	'文章同步
 	Call Add_Filter_Plugin("Filter_Plugin_PostArticle_Succeed","duoshuo.include.postarticle_succeed")
 	'评论同步
-	Call Add_Filter_Plugin("Filter_Plugin_PostComment_Succeed","duoshuo.include.postcomment_succeed")
+	'Call Add_Filter_Plugin("Filter_Plugin_PostComment_Succeed","duoshuo.include.postcomment_succeed")
 	
 End Function
 

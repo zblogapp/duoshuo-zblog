@@ -11,7 +11,7 @@
 <!-- #include file="..\..\..\zb_system\function\c_system_plugin.asp" -->
 <!-- #include file="..\p_config.asp" -->
 <%
-ShowError_Custom="If Err.Number>0 Then"&vbCrlf&"Response.Write ""({'success':'""&ZVA_ErrorMsg(id)&""'})"""&vbCrlf&"Response.End"&vbCrlf&"End If"
+
 Dim intRight
 intRight=1
 
@@ -99,6 +99,7 @@ Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	strSQL=strSQL & ",comm_Author As author_name,comm_Email As author_email,comm_HomePage As author_url,comm_PostTime As created_at"
 	strSQL=strSQL & ",comm_ip As ip,comm_agent As agent,comm_Content As message FROM blog_Comment WHERE comm_IsCheck=0"
 	If intMax>0 Then strSQL=strSQL & " AND (comm_ID BETWEEN "&intMin&" AND "&intMax&")"
+	strSQL=strSQL & "AND blog_Comment.comm_ID not in (SELECT ds_cmtid FROM blog_Plugin_Duoshuo)"
 	strData=strData & Export_SubFunc_Comment(strSQL)
 	
 	objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.posts.import
@@ -106,9 +107,8 @@ Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
 	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
 	
-	'返回数据格式：
-	'{"response":{"149":"1171546132069744642","150":"1171546132069744643","151":"1171546132069744644","152":"1171546132069744645","154":"1171546132069744646","155":"1171546132069744647","156":"1171546132069744648","157":"1171546132069744649"},"code":0}
-
+	Call duoshuo.insertJSON(objXmlHttp.ResponseText)
+	
 		
 End Function
 
@@ -249,6 +249,7 @@ function Api_Async(){
 	
 }
 function Api_Run(){
+	ShowError_Custom="If Err.Number>0 Then\nduoshuo.config.Save()\nResponse.Write \"({'success':'\"&ZVA_ErrorMsg(id)&\"'})\"\nResponse.End\nEnd If"
 	Duoshuo_NoResponse_Init();//加载数据库
 	if(duoshuo.config.Read("duoshuo_cron_sync_enabled")!="async") return {'success':'noasync'}
 	try{
@@ -262,5 +263,20 @@ function Api_Run(){
 	catch(e){
 		return {'success':e.message}
 	}
+}
+duoshuo.insertJSON=function(data){
+	var o=eval('('+data+')');
+	//这里用AddNew做事务效率会高一点
+	var objRs = new ActiveXObject("ADODB.Recordset");
+	objRs.open("SELECT TOP 1 * FROM blog_Plugin_duoshuo",objConn,1,3)
+	
+	for(var i in o.response){
+		objRs.AddNew();
+		objRs("ds_cmtid")=i
+		objRs("ds_key")=o.response[i]
+		objRs.Update()
+	}
+	
+	var objRs=null;
 }
 </script>
