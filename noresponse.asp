@@ -1,6 +1,6 @@
 ﻿<%@ LANGUAGE="VBSCRIPT" CODEPAGE="65001"%>
 <% Option Explicit %>
-<% On Error Resume Next %>
+<%' On Error Resume Next %>
 <% Response.Charset="UTF-8" %>
 <!-- #include file="..\..\c_option.asp" -->
 <!-- #include file="..\..\..\zb_system\function\c_function.asp" -->
@@ -56,81 +56,119 @@ End Sub
 
 Sub Export
 	Server.ScriptTimeout=1000000
-	Dim intMin,intMax
-
+	Dim objXmlHttp,strData,strSQL,intMin,intMax
+	strData=""
+	strSQL=""
+	intMin=0
+	intMax=0
+	Set objXmlHttp=Server.CreateObject("MSXML2.ServerXMLHTTP")
 	
 	Response.ContentType="application/json"
+	
 	Select Case Request.Form("type")
+	
 	Case "all"
-		Response.AddHeader "Content-Disposition", "attachment; filename=duoshuo_export_all.json"
-
-		Response.Write "{""threads"":"&ArticleData("").jsString&",""posts"":"
-		Response.Write QueryToJson(objConn,"SELECT comm_AuthorID As author_key,comm_ID As post_key,log_id As thread_key,comm_ParentID As parent_key"&_
-						",comm_Author As author_name,comm_Email As author_email,comm_HomePage As author_url,comm_PostTime As created_at"&_
-						",comm_ip As ip,comm_agent As agent,comm_Content As message FROM blog_Comment WHERE comm_IsCheck=0").jsString
-		Response.Write "}"
+		Call Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
+		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	Case "article"
+	
 		intMin=Request.Form("articlemin")
 		intMax=Request.Form("articlemax")
 		Call CheckParameter(intMin,"int",1)
 		Call CheckParameter(intMax,"int",1)
-		Response.AddHeader "Content-Disposition", "attachment; filename=duoshuo_export_article_"&intMin&"to"&intMax&".json"
-		Response.Write "{""threads"":"&ArticleData("WHERE log_ID BETWEEN "&intMin&" AND "&intMax).jsString&"}"
+		Call Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
+		
 	Case "comment"
+	
 		intMin=Request.Form("commentmin")
 		intMax=Request.Form("commentmax")
 		Call CheckParameter(intMin,"int",1)
 		Call CheckParameter(intMax,"int",1)
-		Response.AddHeader "Content-Disposition", "attachment; filename=duoshuo_export_comment_"&intMin&"to"&intMax&".json"
-		Response.Write "{""posts"":"&QueryToJson(objConn,"SELECT comm_AuthorID As author_key,comm_ID As post_key,log_id As thread_key,comm_ParentID As parent_key"&_
-						",comm_Author As author_name,comm_Email As author_email,comm_HomePage As author_url,comm_PostTime As created_at"&_
-						",comm_ip As ip,comm_agent As agent,comm_Content As message FROM blog_Comment WHERE comm_IsCheck=0 AND(comm_ID BETWEEN "&intMin&_
-						" AND "&intMax&")").jsString&"}"
+		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
+		
 	End Select
-	'Dim aryData(),rs,i
-	'i=0
-	'Set rs=objConn.Execute("SELECT * FROM blog_Comment")
-	'Redim aryData(rs.PageSize)
-	'Do Until rs.Eof
-'		aryData(i)=rs("comm_id")
-'		rs.MoveNext
-'	Loop
-'	Dim s
-'	s=(new duoshuo_Duoshuo_aspjson).toJSON(aryData)
-'	Response.Write s
+
+	
+	'strData="short_name="+Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&posts="& strData
+	
+	
+	Response.Write objXmlHttp.ResponseText
+	'Response.Write "}"
+	Set objXmlHttp=Nothing
+	Response.End
+
 End Sub
 
-Function ArticleData(WHERE)
-        Dim rs, jsa, col , o , k
-        Set rs = objConn.Execute("SELECT [log_ID] As thread_key,[log_CateID],[log_Title] as title,[log_Intro] as excerpt,[log_Level],[log_AuthorID] as author_key,[log_PostTime],[log_ViewNums] as views,[log_Url] as url,[log_Type] FROM [blog_Article] "&WHERE)
-        Set jsa = jsArray()
-		jsa.Kind=1
-        While Not (rs.EOF Or rs.BOF)
-				Set o=New TArticle
-				If o.LoadInfoByArray(Array(rs(0),"",rs(1),rs(2),rs(3),"",rs(4),rs(5),rs(6),0,rs(7),0,rs(8),False,"","",rs(9),"")) Then
-	                Set jsa(Null) = jsObject()
-					For Each col In rs.Fields
-						If col.Name<>"url" And Left(col.Name,4)<>"log_" Then
-	    	            	jsa(Null)(col.Name) = col.Value
-						ElseIf col.Name = "create_at" Then
-							k=CStr(col.Value)
-							jsa(Null)(col.Name) = Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2) & " " & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2)
-						ElseIf col.Name = "excerpt" Then
-							jsa(Null)(col.Name) = o.HtmlIntro
-						ElseIf col.Name="url" Then
-							jsa(Null)(col.Name) = TransferHTML(o.FullUrl,"[zc_blog_host]")
-						End If
-					Next
-        		End If
-				Set o=Nothing
-		rs.MoveNext
-        Wend
-        Set ArticleData = jsa
+Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
+	Dim strSQL,strData
+	strSQL="SELECT comm_AuthorID As author_key,comm_ID As post_key,log_id As thread_key,comm_ParentID As parent_key"
+	strSQL=strSQL & ",comm_Author As author_name,comm_Email As author_email,comm_HomePage As author_url,comm_PostTime As created_at"
+	strSQL=strSQL & ",comm_ip As ip,comm_agent As agent,comm_Content As message FROM blog_Comment WHERE comm_IsCheck=0"
+	If intMax>0 Then strSQL=strSQL & " AND (comm_ID BETWEEN "&intMin&" AND "&intMax&")"
+	strData="{""posts"":"
+	strData=strData & Export_SubFunc_All(strSQL).jsString
+	strData=strData & "}"
+	
+	objXmlHttp.Open "POST",duoshuo.url.posts.import & "?short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret"))
+	
+	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
+	'Response.Write "{'orig':"&strData&",'result':"
+	strData="posts="&Server.URLEncode(strData)
+	objXmlHttp.Send strData
+	
 End Function
 
-Function QueryToJSON(dbc, sql)
+Function Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
+	Dim strSQL,strData
+	strSQL="SELECT [log_ID] As thread_key,[log_CateID],[log_Title] as title,[log_Intro] as excerpt,[log_Level],[log_AuthorID] as author_key,[log_PostTime],[log_ViewNums] as views,[log_Url] as url,[log_Type],[log_Content] as content FROM [blog_Article]"
+	If intMax>0 Then strSQL=strSQL & " WHERE (log_ID BETWEEN "&intMin&" AND "&intMax&")"
+	strData=Export_SubFunc_Article(strSQL)
+	
+	objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.threads.import
+	
+	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
+
+	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
+	
+End Function
+
+Function Export_SubFunc_Article(strSQL)
+	Dim rs, jsa, col , o , k , aryData() , i
+	Redim aryData(-1)
+	i=-1
+	Set rs = objConn.Execute(strSQL)
+
+	While Not (rs.EOF Or rs.BOF)
+		Set o=New TArticle
+			If o.LoadInfoByArray(Array(rs(0),"",rs(1),rs(2),rs(3),"",rs(4),rs(5),rs(6),0,rs(7),0,rs(8),False,"","",rs(9),"")) Then
+				For Each col In rs.Fields
+					Redim Preserve aryData(i+1)
+					i=Ubound(aryData)
+					aryData(i)="threads["&o.ID&"]["
+					If col.Name = "create_at" Then
+						k=CStr(col.Value)
+						aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
+						aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
+					ElseIf col.Name = "excerpt" Then
+						aryData(i)=aryData(i)&col.Name & "]=" & o.HtmlIntro
+					ElseIf col.Name="url" Then
+						aryData(i)=aryData(i)&col.Name & "]=" & TransferHTML(o.FullUrl,"[zc_blog_host]")
+					ElseIf Left(col.Name,4)<>"log_" Then 
+						aryData(i)=aryData(i)&col.Name & "]=" & rs(col.Name)
+					Else
+						i=i-1
+					End If
+				Next
+        	End If
+			Set o=Nothing
+	rs.MoveNext
+    Wend
+    Export_SubFunc_Article = Join(aryData,"&")'Server.URLEncode(Join(aryData,"&"))
+End Function
+
+Function Export_SubFunc_All(sql)
     Dim rs, jsa, col, k
-    Set rs = dbc.Execute(sql)
+    Set rs = objConn.Execute(sql)
     Set jsa = jsArray()
 	jsa.Kind=1
     While Not (rs.EOF Or rs.BOF)
@@ -145,7 +183,7 @@ Function QueryToJSON(dbc, sql)
 		Next
         rs.MoveNext
     Wend
-    Set QueryToJSON = jsa
+    Set Export_SubFunc_All = jsa
 End Function
 
 

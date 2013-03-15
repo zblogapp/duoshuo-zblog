@@ -19,7 +19,11 @@ Function ActivePlugin_duoshuo()
 	Call Add_Filter_Plugin("Filter_Plugin_TArticle_Build_Template","duoshuo_include_footer")
 	'修正评论数
 	Call Add_Filter_Plugin("Filter_Plugin_TArticle_Export_TemplateTags","duoshuo_include_cc_fix")
-
+	'文章同步
+	Call Add_Filter_Plugin("Filter_Plugin_PostArticle_Succeed","duoshuo.include.postarticle_succeed")
+	'评论同步
+	Call Add_Filter_Plugin("Filter_Plugin_PostComment_Succeed","duoshuo.include.postcomment_succeed")
+	
 End Function
 
 

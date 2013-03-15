@@ -6,7 +6,7 @@ Sub duoshuo_Initialize()
 	Set duoshuo.config=New TConfig
 	duoshuo.config.Load "DuoShuo"
 	If duoshuo.config.Read("ver")="" Then
-		duoshuo.config.Write "ver","1.0"
+		duoshuo.config.Write "ver","1.2"
 		duoshuo.config.Write "duoshuo_api_hostname","api.duoshuo.com"
 		duoshuo.config.Write "duoshuo_cron_sync_enabled","async"
 		duoshuo.config.Write "duoshuo_cc_fix","False"
@@ -25,7 +25,7 @@ Function duoshuo_SubMenu(id)
 	If id="personal" Then id=1
 	If id="export" Then id=3
 	Dim aryName,aryPath,aryFloat,aryInNewWindow,i
-	aryName=Array("评论管理","多说设置","高级选项","数据导出","多说后台")
+	aryName=Array("评论管理","多说设置","高级选项","导入导出","多说后台")
 	aryPath=Array("main.asp","main.asp?act=personal","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
 	aryFloat=Array("m-left","m-left","m-left","m-left","m-right")
 	aryInNewWindow=Array(False,False,False,False,True)
@@ -75,6 +75,20 @@ End Function
 
 <script language="javascript" runat="server" >
 var duoshuo={}
+//多说API地址
+duoshuo.url={
+	posts:{
+		"import":"/posts/import.json", //同步评论到多说
+		"create":"/posts/create.json" //发表评论
+	},
+	threads:{
+		"count":"/threads/counts.json", //评论数转发数
+		"import":"/threads/import.json" //同步文章到多说
+	},
+	log:{
+		"list":"/log/list.json" //同步回数据库
+	}
+}
 //常用函数
 //HTTP GET请求
 duoshuo.get=function(s){return Request.QueryString(s).Item}
@@ -84,7 +98,7 @@ duoshuo.post=function(s){return Request.Form(s).Item}
 duoshuo.checkspider=function(){
 	duoshuo_Initialize();
 	if(duoshuo.config.Read("duoshuo_seo_enabled")!="True"){return false}
-	if(ZC_POST_STATIC_MODE=="STATIC"){return false}
+	if(ZC_POST_STATIC_MODE=="STATIC"){return true}
 	var spider=/(baidu|google|bing|soso|360|Yahoo|msn|Yandex|youdao|mj12|Jike|Ahrefs|ezooms|Easou|sogou)(bot|spider|Transcoder|slurp)/i
 	if(spider.test(Request.ServerVariables("HTTP_USER_AGENT").Item)){
 		return true
@@ -212,7 +226,7 @@ duoshuo.api.update=function(meta_json){return false }//目前还没有逻辑
 
 duoshuo.api.sync=function(){
 	var ajax=new ActiveXObject("MSXML2.ServerXMLHTTP"),url="",objRs,data=[],s=0,log_id="";	
-	url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+"/log/list.json?limit=50&short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
+	url="http://"+duoshuo.config.Read("duoshuo_api_hostname")+duoshuo.url.log.list+"?limit=50&short_name="+Server.URLEncode(duoshuo.config.Read("short_name"));
 	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
 	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
 
