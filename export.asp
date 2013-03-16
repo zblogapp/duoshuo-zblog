@@ -91,6 +91,15 @@ tr {
                         <input name="" type="submit" class="button" onClick="$('#type').val('comment')" value="导出评论" />
                       </p></td>
                   </tr>
+                                    <tr>
+                    
+                    <td><p><span class="bold"> · 用户数据导出</span><br/>
+                        <span class="note">无论是否存在都将同步</span></p></td>
+                    <td>
+                        <input name="" type="submit" class="button" onClick="$('#type').val('member')" value="导出用户" />
+                      </td>
+                  </tr>
+
                 </tbody>
                 <tfoot>
                 </tfoot>

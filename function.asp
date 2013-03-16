@@ -87,6 +87,9 @@ duoshuo.url={
 	},
 	log:{
 		"list":"/log/list.json" //同步回数据库
+	},
+	users:{
+		"import":"/users/import.json" //用户数据同步
 	}
 }
 //常用函数
@@ -124,7 +127,24 @@ duoshuo.date=function(d){
 duoshuo.include={
 	redirect:function(){
 		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp")
-	}		
+	},
+	postarticle_succeed:function(obj){
+		var odata=new Array(8);
+		odata[0]="threads[0][thread_key]="+obj.ID;
+		odata[1]="threads[0][title]="+Server.URLEncode(obj.Title);
+		odata[2]="threads[0][url]="+Server.URLEncode(obj.FullUrl);
+		odata[3]="threads[0][content]="
+		odata[4]="threads[0][author_key]="+obj.AuthorID;
+		odata[5]="threads[0][excerpt]="+Server.URLEncode(obj.HtmlIntro);
+		odata[6]="threads[0][comment_status]=open";
+		odata[7]="threads[0][likes]=0";
+		odata[8]="threads[0][views]="+obj.ViewNums;
+		var objXmlHttp=new ActiveXObject("MSXML2.ServerXMLHTTP");
+		objXmlHttp.open("POST","http://" + duoshuo.config.Read("duoshuo_api_hostname") + duoshuo.url.threads['import'])
+		objXmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+		objXmlHttp.send("short_name=" + Server.URLEncode(duoshuo.config.Read("short_name")) + "&secret=" + Server.URLEncode(duoshuo.config.Read("secret")) + "&" + odata.join("&"))
+		objXmlHttp=null;
+	}
 }
 duoshuo.show=function(){
 	var k="";

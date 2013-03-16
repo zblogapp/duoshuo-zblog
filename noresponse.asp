@@ -72,6 +72,7 @@ Sub Export
 	
 		Call Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
 		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
+		Call Export_SubFunc_PostMember(objXmlHttp,intMin,intMax)
 		strSuccess="全部数据导出完成"
 		
 	Case "article"
@@ -91,7 +92,11 @@ Sub Export
 		Call CheckParameter(intMax,"int",1)
 		Call Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 		strSuccess="评论数据("&intMin&" - "&intMax&")导出完成"
-		
+	Case "member"
+
+		Call Export_SubFunc_PostMember(objXmlHttp,intMin,intMax)
+		strSuccess="用户数据导出完成"
+
 	Case "backup"
 		strSuccess=Api_Run().success
 		If strSuccess="success" Then strSuccess="数据从多说备份到本地完成"
@@ -102,6 +107,19 @@ Sub Export
 	Response.End
 
 End Sub
+
+Function Export_SubFunc_PostMember(objXmlHttp,intMin,intMax)
+	Dim strSQL,strData
+	strSQL="SELECT [mem_id] As user_key,[mem_Name] As name,[mem_Level] As role,'' as avatar_url,[mem_HomePage] as url,[mem_Email] as email,'' as created_at FROM [blog_Member]"
+	strData=Export_SubFunc_Member(strSQL)
+	
+	objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.users.import
+	
+	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
+
+	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
+	Response.Write objXmlHttp.ResponseText
+End Function
 
 Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	Dim strSQL,strData
@@ -149,7 +167,7 @@ Function Export_SubFunc_Article(strSQL)
 					Redim Preserve aryData(i+1)
 					i=Ubound(aryData)
 					aryData(i)="threads["&o.ID&"]["
-					If col.Name = "create_at" Then
+					If col.Name = "created_at" Then
 						k=CStr(col.Value)
 						aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
 						aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
@@ -180,7 +198,7 @@ Function Export_SubFunc_Comment(sql)
 			Redim Preserve aryData(i+1)
 			i=Ubound(aryData)
 			aryData(i)="posts["&rs("post_key")&"]["
-			If col.Name = "create_at" Then
+			If col.Name = "created_at" Then
 				k=CStr(col.Value)
 				aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
 				aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
@@ -195,6 +213,47 @@ Function Export_SubFunc_Comment(sql)
 
 End Function
 
+Function Export_SubFunc_Member(strSQL)
+	Dim rs, col , o , k , aryData() , i
+	Redim aryData(-1)
+	i=-1
+	Set rs = objConn.Execute(strSQL)
+
+	While Not (rs.EOF Or rs.BOF)
+		Set o=New TUser
+			If o.LoadInfoByArray(Array(rs(0),rs(1),rs(2),"",rs(3),rs(4),0,"","","","","")) Then
+				For Each col In rs.Fields
+					Redim Preserve aryData(i+1)
+					i=Ubound(aryData)
+					aryData(i)="users["&o.ID&"]["
+					If col.Name = "created_at" Then
+						k=Now()
+						aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
+						aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
+					ElseIf col.Name = "avatar_url" Then
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(o.Avatar)
+					ElseIf col.Name = "role" Then
+						Select Case col.Value
+						Case 1
+							k="administrator"
+						Case 2
+							k="editor"
+						Case 3
+							k="author"
+						Case 4
+							k="user"
+						End Select
+						aryData(i)=aryData(i)&col.Name & "]=" & k
+					Else
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
+					End If
+				Next
+        	End If
+			Set o=Nothing
+	rs.MoveNext
+    Wend
+    Export_SubFunc_Member = Join(aryData,"&")'Server.URLEncode(Join(aryData,"&"))
+End Function
 
 
 
