@@ -311,17 +311,17 @@ function Api_Run(){
 	ShowError_Custom="If Err.Number>0 Then\nduoshuo.config.Save()\nResponse.Write \"({'success':'\"&ZVA_ErrorMsg(id)&\"'})\"\nResponse.End\nEnd If"
 	Duoshuo_NoResponse_Init();//加载数据库
 	if(duoshuo.config.Read("duoshuo_cron_sync_enabled")!="async") return {'success':'noasync'}
-	//try{
+	try{
 		duoshuo.api.sync();
 		BlogReBuild_Statistics();
 		BlogReBuild_Comments();
 		BlogReBuild_Functions();
 		BlogReBuild_Default();
 		return {'success':'success'}
-	//}
-	//catch(e){
-	//	return {'success':e.message}
-	//}
+	}
+	catch(e){
+		return {'success':e.message}
+	}
 }
 duoshuo.insertJSON=function(data){
 	var o=eval('('+data+')');

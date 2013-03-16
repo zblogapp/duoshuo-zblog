@@ -79,7 +79,7 @@ tr {
                       </p></td>
                   </tr>
                   <tr>
-                    <%o=objConn.Execute("SELECT MAX([comm_ID]) FROM blog_Comment")(0):Dim p:p=objConn.Execute("SELECT COUNT([comm_ID]) FROM blog_Comment")(0)-objConn.Execute("SELECT COUNT([ds_cmtid]) FROM blog_Plugin_Duoshuo")(0)%>
+                    <%o=objConn.Execute("SELECT MAX([comm_ID]) FROM blog_Comment")(0):Dim p:p=objConn.Execute("SELECT COUNT([comm_ID]) FROM blog_Comment WHERE comm_IsCheck=0")(0)-objConn.Execute("SELECT COUNT([ds_cmtid]) FROM blog_Plugin_Duoshuo")(0)%>
                     <td><p><span class="bold"> · 评论数据导出</span><br/>
                         <span class="note">只同步未向多说同步的评论，还有<%=IIf(p>0,p,0)%>条未同步</span></p></td>
                     <td><p> 评论ID:
