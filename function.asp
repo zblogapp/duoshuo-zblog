@@ -13,7 +13,13 @@ Sub duoshuo_Initialize()
 		duoshuo.config.Write "duoshuo_comments_wrapper_intro",""
 		duoshuo.config.Write "duoshuo_comments_wrapper_outro",""
 		duoshuo.config.Write "duoshuo_seo_enabled","False"
+		duoshuo.config.Write "duoshuo_memdb_created","True"
 		duoshuo.config.Save
+	ElseIf CDbl(duoshuo.config.Read("ver"))<1.3 Then
+		duoshuo.config.Write "ver","1.3"
+		duoshuo.config.Write "duoshuo_memdb_created","True"
+		duoshuo.config.Save
+		Duoshuo_CreateMemDB()
 	End If
 	bduoshuo_Initialize=True
 End Sub

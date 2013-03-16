@@ -34,16 +34,28 @@ Function InstallPlugin_duoshuo()
 	objConn.Execute("SELECT TOP 1 ds_key FROM blog_Plugin_duoshuo")
 	'判断是否有duoshuo这个库，有则err_number=0
 	If Err.Number<>0 Then
-		If ZC_MSSQL_ENABLE Then
-			objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default '',ds_cmtid int default 0)")
-		Else
-			objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_cmtid int default 0)")
-		End If
+		Call Duoshuo_CreateCmtDB()
+		Call Duoshuo_CreateMemDB()
 	End If
 	Call SetBlogHint(Empty,Empty,True)
 	
 End Function
 
+Sub Duoshuo_CreateCmtDB()
+	If ZC_MSSQL_ENABLE Then
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default '',ds_cmtid int default 0)")
+	Else
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default '',ds_memid int default 0)")
+	End If
+End Sub
+
+Sub Duoshuo_CreateMemDB()
+	If ZC_MSSQL_ENABLE Then
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_cmtid int default 0)")
+	Else
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_memid int default 0)")
+	End If
+End Sub
 
 Function UnInstallPlugin_duoshuo()
 

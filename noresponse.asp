@@ -119,6 +119,8 @@ Function Export_SubFunc_PostMember(objXmlHttp,intMin,intMax)
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
 
 	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
+	
+	Call duoshuo.insertJSON.Member(objXmlHttp.ResponseText)
 End Function
 
 Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
@@ -133,9 +135,10 @@ Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.posts.import
 	
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
+	
 	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
 	
-	Call duoshuo.insertJSON(objXmlHttp.ResponseText)
+	Call duoshuo.insertJSON.Comment(objXmlHttp.ResponseText)
 	
 		
 End Function
@@ -323,7 +326,8 @@ function Api_Run(){
 		return {'success':e.message}
 	}
 }
-duoshuo.insertJSON=function(data){
+duoshuo.insertJSON={};
+duoshuo.insertJSON.Comment=function(data){
 	var o=eval('('+data+')');
 	//这里用AddNew做事务效率会高一点
 	var objRs = new ActiveXObject("ADODB.Recordset");
@@ -332,6 +336,21 @@ duoshuo.insertJSON=function(data){
 	for(var i in o.response){
 		objRs.AddNew();
 		objRs("ds_cmtid")=i
+		objRs("ds_key")=o.response[i]
+		objRs.Update()
+	}
+	
+	var objRs=null;
+}
+duoshuo.insertJSON.Member=function(data){
+	var o=eval('('+data+')');
+	//这里用AddNew做事务效率会高一点
+	var objRs = new ActiveXObject("ADODB.Recordset");
+	objRs.open("SELECT TOP 1 * FROM blog_Plugin_duoshuo_Member",objConn,1,3)
+	
+	for(var i in o.response){
+		objRs.AddNew();
+		objRs("ds_memid")=i
 		objRs("ds_key")=o.response[i]
 		objRs.Update()
 	}

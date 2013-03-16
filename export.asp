@@ -66,6 +66,11 @@ tr {
                     <td><input name="" type="submit" class="button" onClick="return stepbystep()" value="一键导出全部数据" /></td>
                   </tr>
                   <tr>
+                    <td><p><span class="bold"> · 用户数据导出</span><br/>
+                        <span class="note">用于历史评论中用户的展示，站点管理权限的匹配，以及文章被评论时的提醒等功能。<span style="color:red">请先导用户，再导文章和评论，以匹配正确的用户信息</span></span></p></td>
+                    <td><input name="" type="submit" class="button" onClick="$('#type').val('member')" value="导出用户" /></td>
+                  </tr>
+                  <tr>
                     <td><p><span class="bold"> · 文章数据导出</span><br/>
                         <span class="note">文章数据无论是否存在都将同步</span></p></td>
                     <td><%Dim o:o=objConn.Execute("SELECT MAX([log_ID]) FROM blog_Article")(0)%>
@@ -91,15 +96,6 @@ tr {
                         <input name="" type="submit" class="button" onClick="$('#type').val('comment')" value="导出评论" />
                       </p></td>
                   </tr>
-                                    <tr>
-                    
-                    <td><p><span class="bold"> · 用户数据导出</span><br/>
-                        <span class="note">无论是否存在都将同步</span></p></td>
-                    <td>
-                        <input name="" type="submit" class="button" onClick="$('#type').val('member')" value="导出用户" />
-                      </td>
-                  </tr>
-
                 </tbody>
                 <tfoot>
                 </tfoot>
@@ -283,5 +279,5 @@ tr {
 		}
         </script> 
         <!--#include file="..\..\..\zb_system\admin\admin_footer.asp"-->
-        
+
 <%Call System_Terminate()%>
