@@ -62,6 +62,7 @@ Sub Export
 	intMin=0
 	intMax=0
 	Set objXmlHttp=Server.CreateObject("MSXML2.ServerXMLHTTP")
+	objXmlhttp.SetTimeOuts 100000, 100000, 100000, 100000
 	
 	'Response.ContentType="application/json"
 	'鬼知道搞毛，jQuery在Server返回一些Content-Type时不会执行success
@@ -168,8 +169,8 @@ Function Export_SubFunc_Article(strSQL)
 					aryData(i)="threads["&o.ID&"]["
 					If col.Name = "created_at" Then
 						k=CStr(col.Value)
-						aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
-						aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
+						aryData(i)=aryData(i)& Server.URLEncode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
 					ElseIf col.Name = "excerpt" Then
 						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(o.HtmlIntro)
 					ElseIf col.Name="url" Then
@@ -199,14 +200,15 @@ Function Export_SubFunc_Comment(sql)
 			aryData(i)="posts["&rs("post_key")&"]["
 			If col.Name = "created_at" Then
 				k=CStr(col.Value)
-				aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
-				aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
+				aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
+				aryData(i)=aryData(i)& Server.URLEncode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
 			Else 
 				aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
 			End If
 		Next
         rs.MoveNext
     Wend
+	
 	Export_SubFunc_Comment = Join(aryData,"&")
 
 
@@ -227,8 +229,8 @@ Function Export_SubFunc_Member(strSQL)
 					aryData(i)="users["&o.ID&"]["
 					If col.Name = "created_at" Then
 						k=Now()
-						aryData(i)=aryData(i)&col.Name & "]=" & Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2)
-						aryData(i)=aryData(i)& "T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00"
+						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
+						aryData(i)=aryData(i)& Server.URLEncode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
 					ElseIf col.Name = "avatar_url" Then
 						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(o.Avatar)
 					ElseIf col.Name = "role" Then

@@ -126,7 +126,7 @@ tr {
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · SEO优化</span><br/>
-                        <span class="note">搜索引擎爬虫访问网页时，显示静态HTML评论(不支持静态模式)</span></p></td>
+                        <span class="note">搜索引擎爬虫访问网页时，显示静态HTML评论</span></p></td>
                     <td><input type="text" class="checkbox" name="duoshuo_seo_enabled" value="<%=duoshuo.config.Read("duoshuo_seo_enabled")%>"/></td>
                   </tr>
                   <tr>
