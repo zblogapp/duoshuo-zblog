@@ -114,30 +114,36 @@ tr {
         $(document).ready(function(){
           $("#_form").submit(function(){
             $("#_status").html("正在执行操作，请稍等..");
-			try{
-				$.post("noresponse.asp?act=export",{
+			$.ajax({
+				type:"POST",
+				url:"noresponse.asp?act=export",
+				data:{
 					type:$("#type").val(),
 					commentmin:$("#commentmin").val(),
 					commentmax:$("#commentmax").val(),
 					articlemax:$("#articlemax").val(),
 					articlemin:$("#articlemin").val()
-				},function(data){
-				  try{
-					  console.log(data)
-					var o=eval('('+data+')');
-					
-					$("#_status").html(o.success);
-				  }
-				  catch(e){
-					$("#_status").html("操作出错..服务器返回"+data);
-				  }
-				});
-				
-			  
-		  }
-		  catch(e){
-		  	$("#_status").html("操作出错..服务器500错误..");
-		  }
+				},
+				success:function(data){
+					try{
+						console.log(data)
+						var o=eval('('+data+')');
+						$("#_status").html(o.success);
+					}
+				  	catch(e){
+						$("#_status").html("操作出错..服务器返回"+data);
+				  	}
+				},
+				error:function(xmlObj,txterr){
+					if(xmlObj.readyState==4){
+						$("#_status").html("操作出错..HTTP状态码"+xmlObj.status+",错误信息"+xmlObj.responseText);
+					}
+					else{
+						$("#_status").html("操作出错.."+txterr);
+					}
+				},
+			});
+						  
 		  return false;
        })})
         </script> 

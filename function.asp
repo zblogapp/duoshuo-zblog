@@ -237,7 +237,7 @@ duoshuo.api.spam=function(meta_json){
 	return meta_json.log_id;
 }
 duoshuo.api.deletepost=function(meta_json){
-	objConn.Execute("DELETE FROM blog_Comment"+(ZC_MSSQL_ENABLE?"":".*")+" FROM blog_comment INNER JOIN [blog_plugin_duoshuo] ON  (((blog_plugin_duoshuo.ds_cmtid)=([blog_Comment].[comm_ID]) and (blog_plugin_duoshuo.ds_key) in("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") )) ");
+	objConn.Execute("DELETE blog_Comment"+(ZC_MSSQL_ENABLE?"":".*")+" FROM blog_Comment INNER JOIN [blog_plugin_duoshuo] ON  (blog_plugin_duoshuo.ds_cmtid=[blog_Comment].[comm_ID] and blog_plugin_duoshuo.ds_key in("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+")) ");
 	objConn.Execute("DELETE FROM blog_plugin_duoshuo WHERE ds_key in("+duoshuo.join2({array:meta_json.meta,before:"'",after:"'",splittag:","})+") ");
 
 	return meta_json.log_id;
