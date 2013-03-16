@@ -130,6 +130,13 @@ tr {
                     <td><input type="text" class="checkbox" name="duoshuo_seo_enabled" value="<%=duoshuo.config.Read("duoshuo_seo_enabled")%>"/></td>
                   </tr>
                   <tr>
+                    <td><p><span class="bold"> · 启用多说登录</span><br/><span class="note">如果想停用，请打开侧栏管理，编辑控制面板，删除&ltdiv class="ds-login"&gt;&lt;/div&gt;即可<br/></p></td>
+                    <td><p> </p>
+                      <p>
+                        <input name="" type="button" class="button" onClick="location.href='noresponse.asp?act=specfg&t=login'" value="立即往侧栏写入多说登录" />
+                      </p></td>
+                  </tr>
+                  <tr>
                     <td><p><span class="bold"> · 其它</span></p></td>
                     <td><p> </p>
                       <p>

@@ -1,4 +1,5 @@
 ﻿<!-- #include file="function.asp" -->
+<!-- #include file="duoshuo_oauth.asp" -->
 <%
 '注册插件
 Call RegisterPlugin("duoshuo","ActivePlugin_duoshuo")
@@ -51,9 +52,9 @@ End Sub
 
 Sub Duoshuo_CreateMemDB()
 	If ZC_MSSQL_ENABLE Then
-		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_cmtid int default 0)")
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_cmtid int default 0,ds_accesstoken VARCHAR(128) default """")")
 	Else
-		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_memid int default 0)")
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_memid int default 0,ds_accesstoken VARCHAR(128) default """")")
 	End If
 End Sub
 

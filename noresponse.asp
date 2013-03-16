@@ -30,12 +30,21 @@ End Sub
 Select Case Request.QueryString("act")
 	Case "callback":Call Duoshuo_NoResponse_Init:Call CallBack
 	Case "export":Call Duoshuo_NoResponse_Init:Call Export
+	Case "specfg":Call Duoshuo_NoResponse_Init:Call SpecialConfig
 	Case "fac":Call Duoshuo_NoResponse_Init:Call Fac
 	Case "api":Call Api
-	Case "api_async":intRight=4:Call api_async
+	Case "api_async":intRight=5:Call api_async
 	Case "save":Call Duoshuo_NoResponse_Init:Call Save
+	Case "login":intRight=5:Call Duoshuo_NoResponse_Init:Call Login
+	Case "logout":Call Duoshuo_NoResponse_Init':Call Save
 End Select
 
+Sub Login()
+	Dim obj
+	Set obj=New duoshuo_oauth
+	Call obj.CallBack(duoshuo.get("code"))
+	
+End Sub
 
 Sub CallBack()
 	If Not IsEmpty(duoshuo.get("short_name")) Then
@@ -52,6 +61,22 @@ Sub Fac()
 	duoshuo.config.Delete
 	Call SetBlogHint(True,Empty,Empty)
 	Response.Redirect "main.asp"
+End Sub
+
+Sub SpecialConfig()
+	Select Case duoshuo.get("t")
+		Case "login"
+			Call GetFunction()
+			If Not CheckRegExp(Functions(FunctionMetas.GetValue("controlpanel")).Content,"ds-login") Then
+				Functions(FunctionMetas.GetValue("controlpanel")).Content=Functions(FunctionMetas.GetValue("controlpanel")).Content & _
+				"<div class=""ds-login""></div>"
+				Functions(FunctionMetas.GetValue("controlpanel")).Save
+				Call SaveFunctionType()
+				Call MakeBlogReBuild_Core()
+			End If
+			Call SetBlogHint(True,Empty,Empty)
+			Response.Redirect "main.asp"
+	End Select
 End Sub
 
 Sub Export
