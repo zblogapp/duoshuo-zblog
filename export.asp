@@ -63,7 +63,7 @@ tr {
                   <tr>
                     <td><p><span class="bold"> · 一键导出</span><br/>
                         <span class="note">如您的站点数据过多，请选择下面的分块导出</span></p></td>
-                    <td><input name="" type="submit" class="button" onClick="$('#type').val('all')" value="一键导出全部数据" /></td>
+                    <td><input name="" type="submit" class="button" onClick="return stepbystep()" value="一键导出全部数据" /></td>
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · 文章数据导出</span><br/>
@@ -111,44 +111,177 @@ tr {
           </div>
         </div>
         <script type="text/javascript">
-        $(document).ready(function(){
-          $("#_form").submit(function(){
-            $("#_status").html("正在执行操作，请稍等..");
+		$(document).ready(function() {
+			ActiveLeftMenu("aCommentMng");
+			$("#_form").submit(function() {
+				$("#_status").html("正在执行操作，请稍等..");
+				$.ajax({
+					type: "POST",
+					url: "noresponse.asp?act=export",
+					data: {
+						type: $("#type").val(),
+						commentmin: $("#commentmin").val(),
+						commentmax: $("#commentmax").val(),
+						articlemax: $("#articlemax").val(),
+						articlemin: $("#articlemin").val()
+					},
+					success: function(data) {
+						try {
+							console.log(data)
+							 var o = eval('(' + data + ')');
+							$("#_status").html(o.success);
+						}
+						 catch(e) {
+							$("#_status").html("操作出错..服务器返回" + data);
+						}
+					},
+					error: function(xmlObj, txterr) {
+						if (xmlObj.readyState == 4) {
+							$("#_status").html("操作出错..HTTP状态码" + xmlObj.status + ",错误信息" + xmlObj.responseText);
+						}
+						 else {
+							$("#_status").html("操作出错.." + txterr);
+						}
+					},
+				});
+				return false;
+			})
+		})
+		 function stepbystep() {
+			$('#divMain2').hide().after("<div id='divMain3' style='margin:0.5px;padding:0px'><p style='line-height:20px'>当前状态：<span id='s'>0</span>%</p><div id='bar'></div><ul id='_hint'><li>正在导入，请稍等</li></ul></div>");;
+			$("#bar").progressbar({
+				min: 0,
+				max: 100,
+				value: 0
+			});
+			setTimeout(stepbystep_main, 5);
+			return false
+		}
+		function stepbystep_main() {
+			stepbystep_member()
+			 stepbystep_article(parseInt($("#articlemin").val()), parseInt($("#articlemax").val()))
+			 stepbystep_comment(parseInt($("#commentmin").val()), parseInt($("#commentmax").val()))
+		}
+		function stepbystep_log(data) {
+			$("#_hint").append("<li>" + data + "</li>");
+		}
+		function stepbystep_article(articlemin, articlemax) {
 			$.ajax({
-				type:"POST",
-				url:"noresponse.asp?act=export",
-				data:{
-					type:$("#type").val(),
-					commentmin:$("#commentmin").val(),
-					commentmax:$("#commentmax").val(),
-					articlemax:$("#articlemax").val(),
-					articlemin:$("#articlemin").val()
+				type: "POST",
+				url: "noresponse.asp?act=export",
+				data: {
+					type: "article",
+					articlemin: articlemin,
+					articlemax: articlemin + 20
 				},
-				success:function(data){
-					try{
-						console.log(data)
-						var o=eval('('+data+')');
-						$("#_status").html(o.success);
+				success: function(data) {
+					try {
+						var o = eval('(' + data + ')');
+						stepbystep_log(o.success)
 					}
-				  	catch(e){
-						$("#_status").html("操作出错..服务器返回"+data);
-				  	}
+					 catch(e) {
+						stepbystep_log("<span style='color:red'>操作出错..服务器返回" + data + "</span>");
+					}
+					$("#bar").progressbar({
+						value: 1 / 3 * 100 + (articlemin / articlemax) / 3 * 100
+					});
+					$("#s").text(Math.floor(1 / 3 * 100 + (articlemin / articlemax) / 3 * 100));
+					if (articlemin + 20 >= articlemax) {
+						$("#bar").progressbar({
+							value: 2 / 3 * 100
+						});
+						$("#s").text(Math.floor(2 / 3 * 100));
+						return true
+					}
+					 else {
+						return stepbystep_article(articlemin + 20, articlemax);
+					}
 				},
-				error:function(xmlObj,txterr){
-					if(xmlObj.readyState==4){
-						$("#_status").html("操作出错..HTTP状态码"+xmlObj.status+",错误信息"+xmlObj.responseText);
+				error: function(xmlObj, txterr) {
+					if (xmlObj.readyState == 4) {
+						$("#_status").html("<span style='color:red'>操作出错..HTTP状态码" + xmlObj.status + ",错误信息" + xmlObj.responseText + "</span>");
 					}
-					else{
-						$("#_status").html("操作出错.."+txterr);
+					 else {
+						$("#_status").html("<span style='color:red'>操作出错.." + txterr + "</span>");
 					}
 				},
 			});
-						  
-		  return false;
-       })})
+		}
+		function stepbystep_member() {
+			$.ajax({
+				type: "POST",
+				url: "noresponse.asp?act=export",
+				data: {
+					type: "member"
+				},
+				success: function(data) {
+					try {
+						console.log(data)
+						 var o = eval('(' + data + ')');
+						stepbystep_log(o.success);
+						$("#bar").progressbar({
+							value: 1 / 3 * 100
+						});
+						$("#s").text(Math.floor(1 / 3 * 100));
+					}
+					 catch(e) {
+						stepbystep_log("<span style='color:red'>操作出错..服务器返回" + data + "</span>");
+					}
+					return true
+				},
+				error: function(xmlObj, txterr) {
+					if (xmlObj.readyState == 4) {
+						stepbystep_log("<span style='color:red'>操作出错..HTTP状态码" + xmlObj.status + ",错误信息" + xmlObj.responseText + "</span>");
+					}
+					 else {
+						stepbystep_log("<span style='color:red'>操作出错.." + txterr + "</span>");
+					}
+				},
+			});
+		}
+		function stepbystep_comment(commentmin, commentmax) {
+			$.ajax({
+				type: "POST",
+				url: "noresponse.asp?act=export",
+				data: {
+					type: "comment",
+					commentmin: commentmin,
+					commentmax: commentmin + 20
+				},
+				success: function(data) {
+					try {
+						var o = eval('(' + data + ')');
+						stepbystep_log(o.success)
+					}
+					 catch(e) {
+						stepbystep_log("<span style='color:red'>操作出错..服务器返回" + data + "</span>");
+					}
+					$("#bar").progressbar({
+						value: 2 / 3 * 100 + (commentmin / commentmax) / 3 * 100
+					});
+					$("#s").text(Math.floor(2 / 3 * 100 + (commentmin / commentmax) / 3 * 100));
+					if (commentmin + 20 >= commentmax) {
+						$("#bar").progressbar({
+							value: 3 / 3 * 100
+						});
+						$("#s").text(Math.floor(3 / 3 * 100));
+						return true
+					}
+					 else {
+						return stepbystep_comment(commentmin + 20, commentmax);
+					}
+				},
+				error: function(xmlObj, txterr) {
+					if (xmlObj.readyState == 4) {
+						$("#_status").html("<span style='color:red'>操作出错..HTTP状态码" + xmlObj.status + ",错误信息" + xmlObj.responseText + "</span>");
+					}
+					 else {
+						$("#_status").html("<span style='color:red'>操作出错.." + txterr + "</span>");
+					}
+				},
+			});
+		}
         </script> 
         <!--#include file="..\..\..\zb_system\admin\admin_footer.asp"-->
-<script type="text/javascript">
-ActiveLeftMenu("aCommentMng");
-</script>
+        
 <%Call System_Terminate()%>
