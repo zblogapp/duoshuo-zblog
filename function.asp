@@ -71,6 +71,19 @@ Function duoshuo_include_footer(ByRef html)
 	'为了不和Z-Blog插件YTCMS冲突
 	html=Replace(html,"<#ZC_BLOG_COPYRIGHT#>",duoshuo.include.footdata&"<#ZC_BLOG_COPYRIGHT#>")
 End Function
+'****************************************
+' 静态模式下把comment设为隐藏
+'****************************************
+Function duoshuo_include_Export_Template_Sub(ByRef Template_Article_Comment,Template_Article_Trackback,Template_Article_Tag,Template_Article_Commentpost,Template_Article_Navbar_L,Template_Article_Navbar_R,Template_Article_Mutuality)
+
+	If Template_Article_Comment<>"" Then
+		If Not InStr(Template_Article_Comment,"<div id=""ds-zblog-hide"" style=""display:none"">")>0 Then 
+			Template_Article_Comment="<div id=""ds-zblog-hide"" style=""display:none"">"&Template_Article_Comment
+			Template_Article_Comment=Template_Article_Comment&"</div>"
+		End If
+	End If
+End Function
+
 %>
 
 <script language="javascript" runat="server" >
@@ -101,7 +114,11 @@ duoshuo.post=function(s){return Request.Form(s).Item}
 duoshuo.checkspider=function(){
 	duoshuo_Initialize();
 	if(duoshuo.config.Read("duoshuo_seo_enabled")!="True"){return false}
-	if(ZC_POST_STATIC_MODE=="STATIC"){return true}
+	if(ZC_POST_STATIC_MODE=="STATIC"){
+		//for不会html硬要搞SEO的傻逼
+		Add_Filter_Plugin("Filter_Plugin_TArticle_Export_Template_Sub","duoshuo_include_Export_Template_Sub");
+		return true
+	}
 	var spider=/(baidu|google|bing|soso|360|Yahoo|msn|Yandex|youdao|mj12|Jike|Ahrefs|ezooms|Easou|sogou)(bot|spider|Transcoder|slurp)/i
 	if(spider.test(Request.ServerVariables("HTTP_USER_AGENT").Item)){
 		return true
