@@ -1,6 +1,12 @@
 ﻿<!-- #include file="function.asp" -->
 <!-- #include file="duoshuo_oauth.asp" -->
 <%
+'剩余未开发功能：
+'1.文章同步到微博（需要API）
+'2.未注册用户绑定功能
+'3.好像没了（望天）
+
+
 '注册插件
 Call RegisterPlugin("duoshuo","ActivePlugin_duoshuo")
 '挂口部分

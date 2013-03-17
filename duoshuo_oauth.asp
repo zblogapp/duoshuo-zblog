@@ -30,9 +30,11 @@ Class duoshuo_oauth
 			Duoshuo_UserID=oObj.user_id
 			Call Post()
 			If Not Duoshuo_Login Then
-				'登录失败处理
+				Response.Redirect "verify.asp?act=login&duoshuo_userid="&oObj.user_id&"&accesstoken="&oObj.access_token
+				'登录失败处理，虽然不太可能
 			End If
 		Else
+			Response.Redirect "verify.asp?act=login&duoshuo_userid="&oObj.user_id&"&accesstoken="&oObj.access_token
 			'未注册处理
 		End If
 		
@@ -42,6 +44,15 @@ Class duoshuo_oauth
 	
 	'数据写入
 	Public Function Post()
+		Call CheckParameter(ID,"int",0)
+		Call CheckParameter(ZB_UserID,"int",0)
+		If ID=0 Then
+			objConn.Execute "INSERT INTO blog_Plugin_Duoshuo_Member (ds_key,ds_memid,ds_accesstoken) VALUES('"&FilterSQL(Duoshuo_UserID)&"',"&ZB_USERID&",'"&AccessToken&"')"
+			Call LoadInfoByDsId(Duoshuo_UserID)
+		Else
+			objConn.Execute "UPDATE blog_Plugin_Duoshuo_Member SET ds_key='"&FilterSQL(Duoshuo_UserID)&"',ds_memid="&ZB_USERID&",ds_accesstoken='"&AccessToken&"'"
+		End If
+		Post=True
 	End Function
 	
 	'API调用
