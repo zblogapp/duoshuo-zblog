@@ -14,14 +14,14 @@ Class duoshuo_oauth
 	'用户回调
 	Public Function CallBack(ds_code)
 		
-		'objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.api.callback 
-		'objXmlHttp.setRequestHeader "Content-Type","application/x-www-form-urlencoded"
-		'objXmlHttp.Send "code="&ds_code
+		objXmlHttp.Open "POST","http://" & duoshuo.config.Read("duoshuo_api_hostname") & duoshuo.url.api.callback 
+		objXmlHttp.setRequestHeader "Content-Type","application/x-www-form-urlencoded"
+		objXmlHttp.Send "code="&ds_code
 		Dim strData
 		
-		'strData=objXmlHttp.ResponseText
+		strData=objXmlHttp.ResponseText
 		'未注册
-		strData="{""remind_in"":7776000,""access_token"":""nicai"",""expires_in"":7776000,""user_id"":""1519109"",""code"":0}"
+		'strData="{""remind_in"":7776000,""access_token"":""nicai"",""expires_in"":7776000,""user_id"":""1519109"",""code"":0}"
 		Dim oObj
 		Set oObj=duoshuo.parseJSON(strData)
 		
