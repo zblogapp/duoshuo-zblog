@@ -30,6 +30,21 @@ Function ActivePlugin_duoshuo()
 	'评论同步
 	'Call Add_Filter_Plugin("Filter_Plugin_PostComment_Succeed","duoshuo.include.postcomment_succeed")
 	
+	'注册接口
+	If CheckPluginState("RegPage") Then
+		If duoshuo.get("duoshuo_userid")<>"undefined" Then
+			Dim strDs,strAcc
+			strDs=duoshuo.get("duoshuo_userid")
+			strAcc=TransferHTML(FilterSQL(duoshuo.get("accesstoken")),"[html-format]")
+			Call CheckParameter(strDs,"int",0)
+			
+			If strDs<>0 Then
+				Call Add_Response_Plugin("Response_Plugin_RegPage_End","<input type=""hidden"" value="""&strDs&""" name=""duoshuo_userid""/>")
+				Call Add_Response_Plugin("Response_Plugin_RegPage_End","<input type=""hidden"" value="""&strAcc&""" name=""AccessToken""/>")
+			End If
+		End If
+		Call Add_Action_Plugin("Action_Plugin_RegSave_End","Set BlogUser=RegUser:If Duoshuo_SaveReg Then strResponse=""<script language='javascript' type='text/javascript'>alert('恭喜，注册成功。\n欢迎您成为本站一员。\n\n单击确定登陆本站。');location.href="""""&BlogHost&"zb_system/cmd.asp?act=login""""</script>""")
+	End If
 End Function
 
 
@@ -106,4 +121,14 @@ Sub Duoshuo_Function
 		objfunc.Save
 	End If
 End Sub
+
+Function Duoshuo_SaveReg()
+	Dim objDS
+	Set objDS=New duoshuo_oauth
+	objDS.Duoshuo_UserID=Request("duoshuo_userid")
+	objDS.AccessToken=Request("accesstoken")
+	objDs.ZB_UserID=BlogUser.ID
+	Duoshuo_SaveReg=objDs.Post
+	Set objDs=Nothing
+End Function
 %>

@@ -40,7 +40,7 @@ Case "login"
 </div>
 <%
 Case "bind"
-	If BlogUser.Level<5 Then SaveReg() :Response.Redirect "main.asp"
+	If BlogUser.Level<5 Then Duoshuo_SaveReg() :Response.Redirect "main.asp"
 %>
 <div class="bg"></div>
 <div id="wrapper">
@@ -100,7 +100,7 @@ Case "bind"
 <%
 Case "verify"
 	If Login=True Then
-		Call SaveReg
+		Call Duoshuo_SaveReg
 		Response.Write "<script>alert('绑定成功！');location.href="""&BlogHost&"zb_system/admin/admin.asp""</script>"
 		Response.End
 	Else 
@@ -113,13 +113,6 @@ End Select
 </html>
 <%
 
-Sub SaveReg()
-	Dim objDS
-	Set objDS=New duoshuo_oauth
-	objDS.Duoshuo_UserID=Request("duoshuo_userid")
-	objDS.AccessToken=Request("accesstoken")
-	objDs.ZB_UserID=BlogUser.ID
-	objDs.Post
-End Sub
+
 
 %>

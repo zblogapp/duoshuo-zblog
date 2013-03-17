@@ -28,10 +28,11 @@ Class duoshuo_oauth
 		If LoadInfoByDsId(oObj.user_id) Then
 			AccessToken=oObj.access_token
 			Duoshuo_UserID=oObj.user_id
-			Call Post()
 			If Not Duoshuo_Login Then
 				Response.Redirect "verify.asp?act=login&duoshuo_userid="&oObj.user_id&"&accesstoken="&oObj.access_token
 				'登录失败处理，虽然不太可能
+			Else
+				Call Post()
 			End If
 		Else
 			Response.Redirect "verify.asp?act=login&duoshuo_userid="&oObj.user_id&"&accesstoken="&oObj.access_token
@@ -91,7 +92,6 @@ Class duoshuo_oauth
 		Dim oUser
 		Set oUser=New TUser 
 		If oUser.LoadInfoById(ZB_UserID) Then
-			Response.Write "a"
 			BlogUser.LoginType="Self"
 			BlogUser.Name=oUser.name
 			BlogUser.PassWord=oUser.Password
