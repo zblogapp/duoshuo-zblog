@@ -54,11 +54,11 @@ tr {
 			Select Case duoshuo.get("act")
 			Case "personal"
 			%>
-            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/settings/" style="border:0; width:100%; height:580px;"></iframe>
+            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/settings/?jwt=<%=duoshuo_getjwt()%>" style="border:0; width:100%; height:580px;"></iframe>
             <%
 			Case "statistics"
 			%>
-            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/statistics/" style="border:0; width:100%; height:580px;"></iframe>
+            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/statistics/?jwt=<%=duoshuo_getjwt()%>" style="border:0; width:100%; height:580px;"></iframe>
 
             <%
 			Case "setting"
@@ -159,7 +159,7 @@ tr {
             <%
 			Case Else
 			%>
-            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin" style="width:100%; border:0;"></iframe>
+            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/?jwt=<%=duoshuo_getjwt()%>" style="width:100%; border:0;"></iframe>
             <%
 			End Select
 			End If

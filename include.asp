@@ -1,5 +1,7 @@
 ﻿<!-- #include file="function.asp" -->
 <!-- #include file="duoshuo_oauth.asp" -->
+<!-- #include file="jwt.all.asp" -->
+
 <%
 '剩余未开发功能：
 '1.文章同步到微博（需要API）
