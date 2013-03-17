@@ -56,6 +56,11 @@ tr {
 			%>
             <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/settings/" style="border:0; width:100%; height:580px;"></iframe>
             <%
+			Case "statistics"
+			%>
+            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/statistics/" style="border:0; width:100%; height:580px;"></iframe>
+
+            <%
 			Case "setting"
 			%>
             <form action="noresponse.asp?act=save" method="post">
