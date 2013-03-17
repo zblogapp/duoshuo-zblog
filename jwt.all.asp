@@ -3984,7 +3984,7 @@ function utf8to16(str) {
 
 
 function duoshuo_getjwt(){
-	var token = new jwt.WebToken('{"short_name": "'+duoshuo.config.Read("short_name")+'","user_key": '+BlogUser.ID+', "name": "'+BlogUser.FirstName+'"}', "{\"typ\":\"JWT\",\"alg\":\"HS256\"}");
+	var token = new jwt.WebToken('{"short_name": "'+duoshuo.config.Read("short_name")+'","user_key": '+BlogUser.ID+', "name": "'+escape(BlogUser.FirstName)+'"}', "{\"typ\":\"JWT\",\"alg\":\"HS256\"}");
 	var signed = token.serialize(duoshuo.config.Read("secret"));
 	return signed
 }
