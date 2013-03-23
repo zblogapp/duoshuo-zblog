@@ -54,7 +54,7 @@ Sub CallBack()
 	End If
 	Call SetBlogHint(True,Empty,Empty)
 	Call SetBlogHint_Custom("现在，您必须导出数据到多说，否则可能会出现一些奇怪的问题。")
-	Response.Write "<script>top.location.href='export.asp'</script>"
+	Response.Write "<script>top.location.href='export.asp?firstrun'</script>"
 End Sub
 
 Sub Fac()

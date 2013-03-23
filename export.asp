@@ -55,11 +55,13 @@ tr {
                   </tr>
                 </thead>
                 <tbody>
+                  <%If IsEmpty(Request.QueryString("firstrun")) Then%>
                   <tr>
                     <td><p><span class="bold"> · 立即进行数据同步</span><br/>
                         <span class="note"></span></p></td>
                     <td><input name="" type="submit" class="button" onClick="$('#type').val('backup')" value="立即从多说备份数据" /></td>
                   </tr>
+                  <%End If%>
                   <tr>
                     <td><p><span class="bold"> · 一键导出</span><br/>
                         <span class="note">如您的站点数据过多，请选择下面的分块导出</span></p></td>
@@ -67,7 +69,7 @@ tr {
                   </tr>
                   <tr>
                     <td><p><span class="bold"> · 用户数据导出</span><br/>
-                        <span class="note">用于历史评论中用户的展示，站点管理权限的匹配，以及文章被评论时的提醒等功能。<span style="color:red">请先导用户，再导文章和评论，以匹配正确的用户信息</span></span></p></td>
+                        <span class="note">用于历史评论中用户的展示，站点管理权限的匹配，以及文章被评论时的提醒等功能。<span style="color:red">必须先导入用户以匹配正确的用户信息</span></span></p></td>
                     <td><input name="" type="submit" class="button" onClick="$('#type').val('member')" value="导出用户" /></td>
                   </tr>
                   <tr>

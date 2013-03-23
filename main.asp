@@ -41,7 +41,7 @@ tr {
           <div id="ShowBlogHint">
             <%Call GetBlogHint()%>
           </div>
-          <div class="divHeader"><%=BlogTitle%></div>
+          <div class="divHeader"><%=BlogTitle%><%=NewWindow()%></div>
           <div class="SubMenu"><%=duoshuo_SubMenu(duoshuo.get("act"))%></div>
           <div id="divMain2"> 
             <script type="text/javascript">ActiveTopMenu("aPlugInMng");</script>
@@ -145,7 +145,7 @@ tr {
                     <td><p><span class="bold"> · 其它</span></p></td>
                     <td><p> </p>
                       <p>
-                        <input name="" type="button" class="button" onClick="if(confirm('你确定要继续吗？')){location.href='noresponse.asp?act=fac'}" value="插件配置初始化" />
+                        <input name="" type="button" class="button" onClick="if(confirm('你确定要继续吗？')){location.href='noresponse.asp?act=fac'}" value="清空插件配置" />
                       </p></td>
                   </tr>
                 </tbody>
@@ -183,5 +183,8 @@ $('#duoshuo_manage').addClass('sidebarsubmenu1');
 <%
 Function GetChecked(name,value)
 	If duoshuo.config.Read(name)=value Then GetChecked=" checked=""checked"" "
+End Function
+
+Function NewWindow()
 End Function
 %>

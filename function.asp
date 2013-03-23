@@ -30,7 +30,7 @@ Function duoshuo_SubMenu(id)
 	Dim aryName,aryPath,aryFloat,aryInNewWindow,aryID,i
 	aryName=Array("评论管理","数据统计","多说设置","高级选项","导入导出","多说后台")
 	aryPath=Array("main.asp","main.asp?act=statistics","main.asp?act=personal","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
-	aryFloat=Array("m-left","m-left","m-left","m-left","m-left","m-right")
+	aryFloat=Array("m-left","m-left","m-left","m-left","m-left","hidden")
 	aryID=Array("","statistics","personal","setting","export","")
 	aryInNewWindow=Array(False,False,False,False,False,True)
 	For i=0 To Ubound(aryName)
