@@ -186,5 +186,7 @@ Function GetChecked(name,value)
 End Function
 
 Function NewWindow()
+	NewWindow="<script type='text/javascript'>$(function(){var w=$('#duoshuo-remote-window');if(w.length>0){$('.divHeader').append('<span style=""font-size:12px;padding: 3px 8px;background: #f1f1f1;margin-left: 4px;color: #21759b;-webkit-border-radius: 3px;border-radius: 3px;border-width: 1px;border-style: solid;""><a href='+w.attr(""src"")+' target=""_blank"">新窗口打开</a></span>')}})</script>"
 End Function
+'window.open(k.attr('src'))
 %>
