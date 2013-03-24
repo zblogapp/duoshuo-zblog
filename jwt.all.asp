@@ -180,7 +180,8 @@ var jwt={};var JWTInternals=(function(){var b64urlmap="ABCDEFGHIJKLMNOPQRSTUVWXY
 function duoshuo_getjwt(){
 	var token = new jwt.WebToken('{"short_name": "'+duoshuo.config.Read("short_name")+'","user_key": '+BlogUser.ID+', "name": "'+duoshuo_jsEncode(BlogUser.FirstName)+'"}', "{\"typ\":\"JWT\",\"alg\":\"HS256\"}");
 	var signed = token.serialize(duoshuo.config.Read("secret"));
-	return signed
+	Response.AddHeader("Set-Cookie","duoshuo_token="+signed);
+	return signed;
 }
 
 </script>
