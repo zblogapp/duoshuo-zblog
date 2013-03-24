@@ -75,6 +75,7 @@ Function duoshuo_include_footer(ByRef html)
 	duoshuo.include.footdata="<script type='text/javascript'>function duoshuo_callback(data){if(data.response){for(var i in data.response){jQuery('[duoshuo_id='+i+']').html(data.response[i].comments);}}};var duoshuoQuery = {short_name:"""&duoshuo.config.Read("short_name")&""",   sso: { login: bloghost+""zb_users/plugin/duoshuo/noresponse.asp?act=login"", logout:  bloghost+""zb_users/plugin/duoshuo/noresponse.asp?act=logout""   }};</script><script type=""text/javascript"" src=""http://static.duoshuo.com/embed.js""></script>"&duoshuo.include.footdata
 	'为了不和Z-Blog插件YTCMS冲突
 	html=Replace(html,"<#ZC_BLOG_COPYRIGHT#>",duoshuo.include.footdata&"<#ZC_BLOG_COPYRIGHT#>")
+	duoshuo_include_footer=html
 End Function
 '****************************************
 ' 静态模式下把comment设为隐藏
@@ -173,12 +174,21 @@ duoshuo.include={
 }
 duoshuo.show=function(){
 	var k="";
+
 	duoshuo_Initialize();
-	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->';
+	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->\n';
 	k+=duoshuo.config.Read("duoshuo_comments_wrapper_intro");
 	k+='<div class="ds-thread" data-thread-key="<#article/id#>" ';
-	k+= 'data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url="<#article/url#>"></div>';	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
+	k+= 'data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url="<#article/url#>"></div>\n';
+	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
 	k+='<!-'+'- Duoshuo Comment END -->';
+	if(CheckPluginState("Wap")){
+		if(duoshuo.get("mod").toLowerCase()=="pad"){
+			k=k+"<#ZC_BLOG_COPYRIGHT#>";
+			k=duoshuo_include_footer(k);
+			k=k.replace("<#ZC_BLOG_COPYRIGHT#>","")
+		}
+	}
 	return k;
 }
 
