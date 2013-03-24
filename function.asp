@@ -234,7 +234,7 @@ duoshuo.api.create = function(meta_json,log_id) {
 
     if (cmt.EMail != null) {
         if (cmt.EMail.length > 0) {
-            if ((!CheckRegExp(cmt.EMail, "[email]")) || cmt.EMail.length > ZC_USERNAME_MAX) cmt.EMail = "null@null.com"
+            if ((!CheckRegExp(cmt.EMail, "[email]")) || cmt.EMail.length > ZC_EMAIL_MAX) cmt.EMail = "null@null.com"
         }
     }
     else {
