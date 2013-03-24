@@ -28,11 +28,11 @@ End Sub
 '****************************************
 Function duoshuo_SubMenu(id)
 	Dim aryName,aryPath,aryFloat,aryInNewWindow,aryID,i
-	aryName=Array("评论管理","数据统计","多说设置","高级选项","导入导出","多说后台")
-	aryPath=Array("main.asp","main.asp?act=statistics","main.asp?act=personal","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
-	aryFloat=Array("m-left","m-left","m-left","m-left","m-left","hidden")
-	aryID=Array("","statistics","personal","setting","export","")
-	aryInNewWindow=Array(False,False,False,False,False,True)
+	aryName=Array("评论管理","用户管理","数据统计","多说设置","高级选项","导入导出","多说后台")
+	aryPath=Array("main.asp","main.asp?act=user","main.asp?act=statistics","main.asp?act=personal","main.asp?act=setting","export.asp",IIf(duoshuo.config.Read("short_name")="","http://www","http://"&duoshuo.config.Read("short_name"))&".duoshuo.com")
+	aryFloat=Array("m-left","m-left","m-left","m-left","m-left","m-left","hidden")
+	aryID=Array("","user","statistics","personal","setting","export","")
+	aryInNewWindow=Array(False,False,False,False,False,False,True)
 	For i=0 To Ubound(aryName)
 		If id=aryID(i) Then id=i
 		duoshuo_SubMenu=duoshuo_SubMenu & MakeSubMenu(aryName(i),aryPath(i),aryFloat(i)&IIf(i=id," m-now",""),aryInNewWindow(i))
@@ -152,7 +152,18 @@ duoshuo.parseJSON=function(str){
 //挂口操作
 duoshuo.include={
 	redirect:function(){
-		if(duoshuo.get("act")=="CommentMng") Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp")
+		//if(duoshuo.get("duoshuo")==""){
+			switch(duoshuo.get("act")){
+				case "CommentMng":
+					Response.Redirect(BlogHost + "zb_users/plugin/duoshuo/main.asp")
+				case "UserMng":
+					SetBlogHint_Custom("您本地的用户信息仅向多说同步了帐号、Email和网址，没有同步密码及一切隐私信息<br/>\
+										同步的用户将用于历史评论中用户的展示、站点管理权限的匹配，以及文章被评论时的提醒等功能。<br/>\
+										如果有用户修改了名称等信息，您必须重新同步到多说。<br/>\
+					")
+					Add_Response_Plugin("Response_Plugin_UserMng_SubMenu",MakeSubMenu("多说用户管理",BlogHost + "zb_users/plugin/duoshuo/main.asp?act=user","m-left",false))
+			}
+		//}
 	},
 	postarticle_succeed:function(obj){
 		var odata=new Array(8);

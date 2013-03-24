@@ -287,7 +287,9 @@ End Function
 
 
 Sub Api()
-	
+	Response.Write "暂不支持Ping"
+	BlogUser.ID=1
+	Call SetBlogHint_Custom("多说 for Z-Blog插件暂不支持Ping请求，请静待版本更新")
 End Sub
 
 

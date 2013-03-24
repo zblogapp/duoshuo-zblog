@@ -11,6 +11,8 @@
 <!-- #include file="..\..\..\zb_system\function\c_system_plugin.asp" -->
 <!-- #include file="..\p_config.asp" -->
 <%
+Dim ActiveMenu
+ActiveMenu="ActiveLeftMenu(""aCommentMng"");"
 Call System_Initialize()
 '检查非法链接
 Call CheckReference("")
@@ -22,19 +24,10 @@ Call DuoShuo_Initialize
 %>
 <!--#include file="..\..\..\zb_system\admin\admin_header.asp"-->
 <style type="text/css">
-tr {
-	height: 32px
-}
-#divMain2 ul li {
-	margin-top: 6px;
-	margin-bottom: 6px
-}
-.bold {
-	font-weight: bold;
-}
-.note {
-	margin-left: 10px
-}
+tr {height: 32px;}
+#divMain2 ul li {margin-top: 6px;margin-bottom: 6px}
+.bold {font-weight: bold;}
+.note {margin-left: 10px}
 </style>
 <!--#include file="..\..\..\zb_system\admin\admin_top.asp"-->
         <div id="divMain">
@@ -44,7 +37,6 @@ tr {
           <div class="divHeader"><%=BlogTitle%><%=NewWindow()%></div>
           <div class="SubMenu"><%=duoshuo_SubMenu(duoshuo.get("act"))%></div>
           <div id="divMain2"> 
-            <script type="text/javascript">ActiveTopMenu("aPlugInMng");</script>
             <%
 			If duoshuo.config.Read("short_name")="" Then
 			%>
@@ -55,6 +47,11 @@ tr {
 			Case "personal"
 			%>
             <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/settings/?jwt=<%=duoshuo_getjwt()%>" style="border:0; width:100%; height:580px;"></iframe>
+            <%
+			Case "user"
+			ActiveMenu="ActiveLeftMenu(""aUserMng"");"
+            %>
+            <iframe id="duoshuo-remote-window" src="http://<%=duoshuo.config.Read("short_name")%>.duoshuo.com/admin/users/?jwt=<%=duoshuo_getjwt()%>" style="border:0; width:100%; height:580px;"></iframe>
             <%
 			Case "statistics"
 			%>
@@ -166,19 +163,20 @@ tr {
 			%>
           </div>
         </div>
+		<script type="text/javascript">
+        <%=ActiveMenu%>
+        $(document).ready(function(){
+            var iframe = $('#duoshuo-remote-window');
+            resetIframeHeight = function(){
+                iframe.height($(window).height() - iframe.offset().top);
+            };
+            resetIframeHeight();
+            $(window).resize(resetIframeHeight);
+        });
+        $('#duoshuo_manage').addClass('sidebarsubmenu1');
+        </script>
+
         <!--#include file="..\..\..\zb_system\admin\admin_footer.asp"-->
-<script type="text/javascript">
-ActiveLeftMenu("aCommentMng");
-$(document).ready(function(){
-	var iframe = $('#duoshuo-remote-window');
-	resetIframeHeight = function(){
-		iframe.height($(window).height() - iframe.offset().top);
-	};
-	resetIframeHeight();
-	$(window).resize(resetIframeHeight);
-});
-$('#duoshuo_manage').addClass('sidebarsubmenu1');
-</script>
 <%Call System_Terminate()%>
 <%
 Function GetChecked(name,value)
