@@ -194,10 +194,12 @@ duoshuo.show=function(){
 	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
 	k+='<!-'+'- Duoshuo Comment END -->';
 	if(CheckPluginState("Wap")){
-		if(duoshuo.get("mod").toLowerCase()=="pad"){
-			k=k+"<#ZC_BLOG_COPYRIGHT#>";
-			k=duoshuo_include_footer(k);
-			k=k.replace("<#ZC_BLOG_COPYRIGHT#>","")
+		if(typeof(duoshuo.get("mod"))!="undefined"){
+			if(duoshuo.get("mod").toLowerCase()=="pad"){
+				k=k+"<#ZC_BLOG_COPYRIGHT#>";
+				k=duoshuo_include_footer(k);
+				k=k.replace("<#ZC_BLOG_COPYRIGHT#>","")
+			}
 		}
 	}
 	return k;
