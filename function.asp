@@ -72,8 +72,9 @@ Function duoshuo_include_footer(ByRef html)
 	If duoshuo.threadkey<>"" Then 
 		duoshuo.include.footdata=duoshuo.include.footdata&"<script type='text/javascript' src='http://api.duoshuo.com/threads/counts.jsonp?short_name="& Server.URLEncode(duoshuo.config.Read("short_name")) &"&threads="&Server.URLEncode(duoshuo.threadkey)&"&callback=duoshuo_callback'></script>"  '插入页面底部的版权信息，进行批量获
 	End If
-	duoshuo.include.footdata="<script type='text/javascript'>function duoshuo_callback(data){if(data.response){for(var i in data.response){jQuery('[duoshuo_id='+i+']').html(data.response[i].comments);}}};var duoshuoQuery = {short_name:"""&duoshuo.config.Read("short_name")&""",   sso: { login: bloghost+""zb_users/plugin/duoshuo/noresponse.asp?act=login"", logout:  bloghost+""zb_users/plugin/duoshuo/noresponse.asp?act=logout""   }};</script><script type=""text/javascript"" src=""http://static.duoshuo.com/embed.js""></script>"&duoshuo.include.footdata
+	duoshuo.include.footdata="<script type='text/javascript'>function duoshuo_callback(data){if(data.response){for(var i in data.response){jQuery('[duoshuo_id='+i+']').html(data.response[i].comments);}}};var duoshuoQuery = {short_name:"""&duoshuo.config.Read("short_name")&"""};</script><script type=""text/javascript"" src=""http://static.duoshuo.com/embed.js""></script>"&duoshuo.include.footdata
 	'为了不和Z-Blog插件YTCMS冲突
+	',   sso: { login: bloghost+""zb_users/plugin/duoshuo/noresponse.asp?act=login"", logout:  bloghost+""zb_users/plugin/duoshuo/noresponse.asp?act=logout""    }'移除SSO
 	html=Replace(html,"<#ZC_BLOG_COPYRIGHT#>",duoshuo.include.footdata&"<#ZC_BLOG_COPYRIGHT#>")
 	duoshuo_include_footer=html
 End Function
