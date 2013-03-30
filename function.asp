@@ -185,7 +185,6 @@ duoshuo.include={
 }
 duoshuo.show=function(){
 	var k="";
-
 	duoshuo_Initialize();
 	k+='<!'+'-- Duoshuo Comment BEGIN -'+'->\n';
 	k+=duoshuo.config.Read("duoshuo_comments_wrapper_intro");
@@ -193,12 +192,14 @@ duoshuo.show=function(){
 	k+= 'data-title="<#article/title#>" data-author-key="<#article/author/id#>" data-url="<#article/url#>"></div>\n';
 	k+=duoshuo.config.Read("duoshuo_comments_wrapper_outro");
 	k+='<!-'+'- Duoshuo Comment END -->';
-	if(CheckPluginState("Wap")){
-		if(typeof(duoshuo.get("mod"))!="undefined"){
-			if(duoshuo.get("mod").toLowerCase()=="pad"){
-				k=k+"<#ZC_BLOG_COPYRIGHT#>";
-				k=duoshuo_include_footer(k);
-				k=k.replace("<#ZC_BLOG_COPYRIGHT#>","")
+	if(duoshuo_url){
+		if(CheckPluginState("Wap")){
+			if(typeof(duoshuo.get("mod"))!="undefined"){
+				if(duoshuo.get("mod").toLowerCase()=="pad"){
+					k=k+"<#ZC_BLOG_COPYRIGHT#>";
+					k=duoshuo_include_footer(k);
+					k=k.replace("<#ZC_BLOG_COPYRIGHT#>","")
+				}
 			}
 		}
 	}

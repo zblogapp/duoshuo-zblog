@@ -3,6 +3,8 @@
 <!-- #include file="jwt.all.asp" -->
 
 <%
+Dim duoshuo_url
+duoshuo_url=CBool(InStrRev(LCase(Request.ServerVariables("PATH_INFO").Item),"default.asp"))
 '剩余未开发功能：
 '1.文章同步到微博（需要API）
 '2.未注册用户绑定功能
