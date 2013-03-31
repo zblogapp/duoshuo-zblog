@@ -143,7 +143,7 @@ Function Export_SubFunc_PostMember(objXmlHttp,intMin,intMax)
 	
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
 
-	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
+	objXmlHttp.Send "short_name=" & duoshuo_urlencode(duoshuo.config.Read("short_name")) & "&secret=" & duoshuo_urlencode(duoshuo.config.Read("secret")) & "&" & strData
 	
 	Call duoshuo.insertJSON.Member(objXmlHttp.ResponseText)
 End Function
@@ -161,7 +161,7 @@ Function Export_SubFunc_PostComment(objXmlHttp,intMin,intMax)
 	
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
 	
-	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
+	objXmlHttp.Send "short_name=" & duoshuo_urlencode(duoshuo.config.Read("short_name")) & "&secret=" & duoshuo_urlencode(duoshuo.config.Read("secret")) & "&" & strData
 	
 	Call duoshuo.insertJSON.Comment(objXmlHttp.ResponseText)
 	
@@ -178,7 +178,7 @@ Function Export_SubFunc_PostArticle(objXmlHttp,intMin,intMax)
 	
 	objXmlHttp.SetRequestHeader "Content-Type","application/x-www-form-urlencoded"
 
-	objXmlHttp.Send "short_name=" & Server.URLEncode(duoshuo.config.Read("short_name")) & "&secret=" & Server.URLEncode(duoshuo.config.Read("secret")) & "&" & strData
+	objXmlHttp.Send "short_name=" & duoshuo_urlencode(duoshuo.config.Read("short_name")) & "&secret=" & duoshuo_urlencode(duoshuo.config.Read("secret")) & "&" & strData
 	
 End Function
 
@@ -197,14 +197,14 @@ Function Export_SubFunc_Article(strSQL)
 					aryData(i)="threads["&o.ID&"]["
 					If col.Name = "created_at" Then
 						k=CStr(col.Value)
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
-						aryData(i)=aryData(i)& Server.URLEncode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
+						aryData(i)=aryData(i)& duoshuo_urlencode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
 					ElseIf col.Name = "excerpt" Then
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(o.HtmlIntro)
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(o.HtmlIntro)
 					ElseIf col.Name="url" Then
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(TransferHTML(o.FullUrl,"[zc_blog_host]"))
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(TransferHTML(o.FullUrl,"[zc_blog_host]"))
 					ElseIf Left(col.Name,4)<>"log_" Then 
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(rs(col.Name))
 					Else
 						i=i-1
 					End If
@@ -213,7 +213,7 @@ Function Export_SubFunc_Article(strSQL)
 			Set o=Nothing
 	rs.MoveNext
     Wend
-    Export_SubFunc_Article = Join(aryData,"&")'Server.URLEncode(Join(aryData,"&"))
+    Export_SubFunc_Article = Join(aryData,"&")'duoshuo_urlencode(Join(aryData,"&"))
 End Function
 
 Function Export_SubFunc_Comment(sql)
@@ -228,10 +228,10 @@ Function Export_SubFunc_Comment(sql)
 			aryData(i)="posts["&rs("post_key")&"]["
 			If col.Name = "created_at" Then
 				k=CStr(col.Value)
-				aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
-				aryData(i)=aryData(i)& Server.URLEncode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
+				aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
+				aryData(i)=aryData(i)& duoshuo_urlencode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
 			Else 
-				aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
+				aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(rs(col.Name))
 			End If
 		Next
         rs.MoveNext
@@ -257,10 +257,10 @@ Function Export_SubFunc_Member(strSQL)
 					aryData(i)="users["&o.ID&"]["
 					If col.Name = "created_at" Then
 						k=Now()
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
-						aryData(i)=aryData(i)& Server.URLEncode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(Year(k) & "-" & Right("0"&Month(k),2) & "-" & Right("0"&Day(k),2))
+						aryData(i)=aryData(i)& duoshuo_urlencode("T" & Right("0"&Hour(k),2) & ":" & Right("0"&Minute(k),2) & ":" & Right("0"&Second(k),2) & "+08:00")
 					ElseIf col.Name = "avatar_url" Then
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(o.Avatar)
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(o.Avatar)
 					ElseIf col.Name = "role" Then
 						Select Case col.Value
 						Case 1
@@ -274,14 +274,14 @@ Function Export_SubFunc_Member(strSQL)
 						End Select
 						aryData(i)=aryData(i)&col.Name & "]=" & k
 					Else
-						aryData(i)=aryData(i)&col.Name & "]=" & Server.URLEncode(rs(col.Name))
+						aryData(i)=aryData(i)&col.Name & "]=" & duoshuo_urlencode(rs(col.Name))
 					End If
 				Next
         	End If
 			Set o=Nothing
 	rs.MoveNext
     Wend
-    Export_SubFunc_Member = Join(aryData,"&")'Server.URLEncode(Join(aryData,"&"))
+    Export_SubFunc_Member = Join(aryData,"&")'duoshuo_urlencode(Join(aryData,"&"))
 End Function
 
 
@@ -311,6 +311,16 @@ Function comparison(ByVal str1,ByVal str2)
 		comparison=CStr(str1)
 	Else
 		comparison=CStr(str2)
+	End If
+End Function
+
+Function duoshuo_urlencode(str)
+	If IsNull(str) Then
+		duoshuo_urlencode=""
+	ElseIf IsEmpty(str) Then
+		duoshuo_urlencode=""
+	Else
+		duoshuo_urlencode=Server.URLEncode(str)
 	End If
 End Function
 %>
