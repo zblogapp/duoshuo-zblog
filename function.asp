@@ -1,12 +1,14 @@
 ﻿<%
 Dim bduoshuo_Initialize
 bduoshuo_Initialize=False
+
 Sub duoshuo_Initialize()
 	If bduoshuo_Initialize Then Exit Sub
 	Set duoshuo.config=New TConfig
+	Dim ds_ver
 	duoshuo.config.Load "DuoShuo"
 	If duoshuo.config.Read("ver")="" Then
-		duoshuo.config.Write "ver","1.3"
+		duoshuo.config.Write "ver","1.4"
 		duoshuo.config.Write "duoshuo_api_hostname","api.duoshuo.com"
 		duoshuo.config.Write "duoshuo_cron_sync_enabled","async"
 		duoshuo.config.Write "duoshuo_cc_fix","False"
@@ -15,11 +17,19 @@ Sub duoshuo_Initialize()
 		duoshuo.config.Write "duoshuo_seo_enabled","False"
 		duoshuo.config.Write "duoshuo_memdb_created","True"
 		duoshuo.config.Save
-	ElseIf CDbl(duoshuo.config.Read("ver"))<1.3 Then
-		duoshuo.config.Write "ver","1.3"
-		duoshuo.config.Write "duoshuo_memdb_created","True"
-		duoshuo.config.Save
-		Duoshuo_CreateMemDB()
+	Else
+		ds_ver=CDbl(duoshuo.config.Read("ver"))
+		If ds_ver<1.3 Then
+			duoshuo.config.Write "ver","1.3"
+			duoshuo.config.Write "duoshuo_memdb_created","True"
+			duoshuo.config.Save
+			Duoshuo_CreateMemDB()
+		ElseIf ds_ver=1.3 Then
+			duoshuo.config.Write "ver","1.4"
+			duoshuo.config.Save
+			'1.3 BUGx1
+			objConn.Execute "ALTER TABLE blog_Plugin_duoshuo_Member ADD "&IIf(ZC_MSSQL_ENABLE,"","COLUMN")&" [ds_accesstoken] "&IIf(ZC_MSSQL_ENABLE,"nvarchar","VARCHAR")&"(128) DEFAULT "&IIf(ZC_MSSQL_ENABLE,"''","""""")			
+		End If
 	End If
 	bduoshuo_Initialize=True
 End Sub

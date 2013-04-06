@@ -77,10 +77,9 @@ End Sub
 
 Sub Duoshuo_CreateMemDB()
 	If ZC_MSSQL_ENABLE Then
-		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default '',ds_memid int default 0)")
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID int identity(1,1) not null primary key,ds_key nvarchar(128) default '',ds_memid int default 0,ds_accesstoken nvarchar(128) default '')")
 	Else
-		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_memid int default 0)")
-		',ds_accesstoken VARCHAR(128) default """")")
+		objConn.Execute("CREATE TABLE [blog_Plugin_duoshuo_Member](ds_ID AutoIncrement primary key,ds_key VARCHAR(128) default """",ds_memid int default 0,ds_accesstoken VARCHAR(128) default """")")
 	End If
 End Sub
 
