@@ -19,6 +19,9 @@ Call RegisterPlugin("duoshuo","ActivePlugin_duoshuo")
 
 Function ActivePlugin_duoshuo()
 
+
+	'关闭系统自带评论
+	Call Add_Action_Plugin("Action_Plugin_CommentPost_Begin","Call duoshuo_disablecomment()")
 	'重定向评论管理
 	Call Add_Action_Plugin("Action_Plugin_Admin_Begin","duoshuo.include.redirect()") 
 	'重写评论框
@@ -33,7 +36,6 @@ Function ActivePlugin_duoshuo()
 	Call Add_Filter_Plugin("Filter_Plugin_PostArticle_Succeed","duoshuo.include.postarticle_succeed")
 	'评论同步
 	'Call Add_Filter_Plugin("Filter_Plugin_PostComment_Succeed","duoshuo.include.postcomment_succeed")
-	
 	'注册接口
 	If CheckPluginState("RegPage") Then
 		If duoshuo.get("duoshuo_userid")<>"undefined" Then
@@ -47,7 +49,7 @@ Function ActivePlugin_duoshuo()
 				Call Add_Response_Plugin("Response_Plugin_RegPage_End","<input type=""hidden"" value="""&strAcc&""" name=""AccessToken""/>")
 			End If
 		End If
-		Call Add_Action_Plugin("Action_Plugin_RegSave_End","Set BlogUser=RegUser:If Duoshuo_SaveReg Then strResponse=""<script language='javascript' type='text/javascript'>alert('恭喜，注册成功。\n欢迎您成为本站一员。\n\n单击确定登陆本站。');location.href="""""&BlogHost&"zb_system/cmd.asp?act=login""""</script>""")
+		'Call Add_Action_Plugin("Action_Plugin_RegSave_End","Set BlogUser=RegUser:If Duoshuo_SaveReg Then strResponse=""<script language='javascript' type='text/javascript'>alert('恭喜，注册成功。\n欢迎您成为本站一员。\n\n单击确定登陆本站。');location.href="""""&BlogHost&"zb_system/cmd.asp?act=login""""</script>""")
 	End If
 End Function
 
@@ -135,4 +137,12 @@ Function Duoshuo_SaveReg()
 	Duoshuo_SaveReg=objDs.Post
 	Set objDs=Nothing
 End Function
+
+Sub duoshuo_disablecomment()
+	If IsEmpty(Request.Form("inpAjax"))=False Then
+		ShowError_Custom="Call RespondError(id,""已启用多说社会化评论，请在文章里评论""):Response.End"
+	End If
+	Call ShowError(0)
+End Sub
+
 %>

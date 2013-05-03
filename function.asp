@@ -20,7 +20,7 @@ Sub duoshuo_Initialize()
 	Else
 		ds_ver=CDbl(duoshuo.config.Read("ver"))
 		If ds_ver<1.3 Then
-			duoshuo.config.Write "ver","1.3"
+			duoshuo.config.Write "ver","1.4"
 			duoshuo.config.Write "duoshuo_memdb_created","True"
 			duoshuo.config.Save
 			Duoshuo_CreateMemDB()
@@ -310,6 +310,8 @@ duoshuo.api.sync=function(){
 	url+="&secret="+Server.URLEncode(duoshuo.config.Read("secret"));
 	if(duoshuo.config.Read("log_id")!=undefined){url+="&since_id="+duoshuo.config.Read("log_id");}else{duoshuo.config.Write("log_id",0)}
 
+	var bol_cc_fix=(duoshuo.config.Read("duoshuo_cc_fix")=="True"?true:false);
+
 	ajax.open("GET",url);
 	ajax.send();//发送网络请求
 	var json=eval("("+ajax.responseText+")");//实例化json
@@ -335,6 +337,14 @@ duoshuo.api.sync=function(){
 			break;
 		}
 		if(log_id){duoshuo.config.Write("log_id",log_id)}
+
+		if(!bol_cc_fix){
+			if(json.response[i].meta.thread_key){
+				//SetBlogHint_Custom("重建文章"+json.response[i].meta.thread_key)
+				BuildArticle(json.response[i].meta.thread_key,false,false);
+			}
+		}
+
 	}
 	duoshuo.config.Save();	
 	if(json.response.length==50) duoshuo.api.sync();
